@@ -200,7 +200,7 @@ jobs:
           mkdir build\\debug
           cd build\\debug
           cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Debug"
-          cmake --build . --target BUILD_ALL
+          cmake --build . --target ALL_BUILD
       - name: make test
         run: |
           cd build\\debug
@@ -213,11 +213,11 @@ jobs:
           mkdir build\\release
           cd build\\release
           cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Release"
-          cmake --build . --target BUILD_ALL
+          cmake --build . --target ALL_BUILD
       - name: sudo make install
         run: |
           cd build\\release
-          cmake --build . --target install
+          cmake --build . --target INSTALL
       - name: sudo make uninstall
         run: |
           cd build\\release
