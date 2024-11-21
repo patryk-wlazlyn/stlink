@@ -2,7 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [feature/libusb_cmake]
+    branches: [master, develop, testing, feature/libusb_cmake]
   pull_request:
     branches: [master, develop, testing]
 
@@ -188,6 +188,40 @@ jobs:
         run: sudo make package
       - name: sudo make uninstall
         run: sudo make uninstall && sudo make clean
+
+  job_windows_msvc:
+    name: windows MSVC
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: debug
+        run: |
+          mkdir build
+          mkdir build\\debug
+          cd build\\debug
+          cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Debug"
+          cmake --build . --target BUILD_ALL
+      - name: make test
+        run: |
+          cd build\\debug
+          rm -Recurse -Force .\\*
+          cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Debug"
+          cmake --build . --target test
+      - name: make release
+        run: |
+          mkdir build
+          mkdir build\\release
+          cd build\\release
+          cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Release"
+          cmake --build . --target BUILD_ALL
+      - name: sudo make install
+        run: |
+          cd build\\release
+          cmake --build . --target install
+      - name: sudo make uninstall
+        run: |
+          cd build\\release
+          cmake --build . --target uninstall
 # Linux MinGW cross compliation
 
 # job_linux_22_04_cross:
