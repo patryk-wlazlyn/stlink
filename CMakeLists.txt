@@ -96,6 +96,7 @@ endif()
 ###
 
 find_package(libusb REQUIRED)
+add_definitions(${LIBUSB_DEFINITIONS}) #only affects MSVC, For ssize-t
 
 ## Check for system-specific additional header files and libraries
 
