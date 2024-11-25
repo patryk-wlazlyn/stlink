@@ -263,6 +263,13 @@ set_target_properties(${STLINK_LIB_SHARED} PROPERTIES
                         OUTPUT_NAME ${PROJECT_NAME}
                         )
 
+# Since we're not using __declspec(dllexport), WINDOWS_EXPORT_ALL_SYMBOLS is mandatory for MSVC.
+# This call will only affect MSVC, compilers/OSes ignore it.
+# TODO: Use dllexport on the desired functions
+set_target_properties(${STLINK_LIB_SHARED} PROPERTIES
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
+
 # Link shared library
 if (WIN32)
     target_link_libraries(${STLINK_LIB_SHARED} ${LIBUSB_LIBRARY} ${SSP_LIB} wsock32 ws2_32)
@@ -270,8 +277,18 @@ else ()
     target_link_libraries(${STLINK_LIB_SHARED} ${LIBUSB_LIBRARY} ${SSP_LIB})
 endif()
 
-install(TARGETS ${STLINK_LIB_SHARED} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
+# For windows, shared libraries go to `bin` and their implibs go to `lib`
+if (MSVC)
+    install(TARGETS ${STLINK_LIB_SHARED}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+else()
+    install(TARGETS ${STLINK_LIB_SHARED}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 
 ###
 # Static library
