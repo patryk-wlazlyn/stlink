@@ -89,9 +89,6 @@ elseif (MSVC)      # Native Windows MSVC
         mark_as_advanced(LIBUSB_FOUND LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
     endif()
 else ()                                                         # all other OS (unix-based)
-
-    set(libusb_FIND_REQUIRED OFF) # Will either find it or download it, there's no missing it.
-
     # libusb header file
     FIND_PATH(LIBUSB_INCLUDE_DIR
         NAMES libusb.h
@@ -108,29 +105,8 @@ else ()                                                         # all other OS (
 
     FIND_PACKAGE_HANDLE_STANDARD_ARGS(libusb DEFAULT_MSG LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
     mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+
     if (NOT LIBUSB_FOUND)
-        message(STATUS "No libusb-1.0 not installed into your system. Downloading and building it from source")
-
-
-        find_file(LIBUDEV_HEADER
-                NAMES libudev.h
-                PATHS /usr/include /usr/local/include
-        )
-
-        if (LIBUDEV_HEADER STREQUAL "LIBUDEV_HEADER-NOTFOUND")
-            set(LIBUSB_ENABLE_UDEV OFF)
-        endif ()
-
-        FetchContent_Declare(
-                ${LIBUSB_NAME}
-                GIT_REPOSITORY https://github.com/libusb/libusb-cmake
-                GIT_TAG        v1.0.27-0
-        )
-
-        FetchContent_MakeAvailable(${LIBUSB_NAME})
-        set(LIBUSB_FOUND ON)
-        set(LIBUSB_INCLUDE_DIR "")
-        set(LIBUSB_LIBRARY ${LIBUSB_NAME})
-        mark_as_advanced(LIBUSB_FOUND LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+        message(FATAL_ERROR "libusb library not found on your system! Install libusb 1.0.x from your package repository.")
     endif()
 endif()
