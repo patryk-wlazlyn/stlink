@@ -277,12 +277,17 @@ else ()
     target_link_libraries(${STLINK_LIB_SHARED} ${LIBUSB_LIBRARY} ${SSP_LIB})
 endif()
 
-# For windows, shared libraries go to `bin` and their implibs go to `lib`
+# For MSVC:
+#    shared libraries (.dll) go to `bin`
+#    their Import Libraries (aka: ImpLibs; .lib files) go to `lib`
 if (MSVC)
     install(TARGETS ${STLINK_LIB_SHARED}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+# For non-MSVC:
+#    shared libraries go to `lib`
+#    Archive destination is set to `lib` as failsafe
 else()
     install(TARGETS ${STLINK_LIB_SHARED}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
