@@ -1,7 +1,7 @@
 # Compiling from sources
 
 
-## Microsoft Windows (10, 11)
+## Microsoft Windows - MINGW (10, 11)
 
 ### Common Requirements
 
@@ -38,6 +38,48 @@ Depending on the flavour of compilation the final executables will be placed in 
 
 [ST-LINK drivers](https://www.st.com/en/development-tools/stsw-link009.html) are required for programmers to work with `stlink`.
 
+
+## Microsoft Windows - MSVC (10, 11)
+
+### Common Requirements
+
+On Windows users should ensure that the following software is installed:
+
+- `git` (Required for building LibUSB if missing)
+- `7zip`
+- `cmake`
+- `MSVC` Compiler (Tested with Visual Studio 2022 and Build Tools for Visual Studio 2022)
+
+### Installation
+
+1. Install `Build Tools for Visual Studio` from <https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022>
+2. Install `cmake` from <https://cmake.org/download/#latest> --> Binary distributions --> Windows x64 Installer<br />
+   Ensure that you add cmake to the $PATH system variable when following the instructions by the setup assistant.
+   Follow the installation instructions on the website.
+3. Fetch the project source files by running `git clone https://github.com/stlink-org/stlink.git` from the command-line (`cmd.exe`/`powershell.exe`)<br />
+   or download and extract (`7zip`) the latest stlink `.zip` release from the Release page on GitHub.
+
+### Building
+
+1. Open the command-line (`cmd.exe`/`powershell.exe`) with administrator privileges
+2. Move to the `stlink` directory with `cd C:\$Path-to-your-stlink-folder$\`
+3. Create a new `build` subdirectory and move into it with `cd .\build`.
+4. Configure the project, using the following command: `cmake -G "Visual Studio 17 2022" .. -DCMAKE_BUILD_TYPE="Release"`
+5. Build the project, using the following command: `cmake --build . --target ALL_BUILD`
+6. Install the project, using the following command: `cmake --build . --target INSTALL`
+7. Add the `bin` folder of the installation path (`C:\Program Files (x86)\stlink\bin`) to the `PATH` environment variables:
+   1. Run `SystemPropertiesAdvanced.exe`
+   2. press on `Environment Variables` button
+   3. On `System Variables` list, find and select `Path` variable
+   4. Press `Edit..` button bellow the list
+   5. On the new Window, press `New` button
+   6. On the new row, type the `bin` path of your installation (`C:\Program Files (x86)\stlink\bin`)
+   7. Press `OK` button to all three windows to save your changes
+
+**NOTE:**
+
+1. [ST-LINK drivers](https://www.st.com/en/development-tools/stsw-link009.html) are required for programmers to work with `stlink`.
+2. Package generation for MSVC is not yet implemented/tested.
 
 ## Linux
 
