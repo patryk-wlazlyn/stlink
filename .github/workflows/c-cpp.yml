@@ -188,6 +188,33 @@ jobs:
         run: sudo make package
       - name: sudo make uninstall
         run: sudo make uninstall && sudo make clean
+
+  job_windows_msvc:
+    name: windows MSVC
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: debug
+        run: |
+          mkdir build
+          mkdir build\\debug
+          cd build\\debug
+          cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Debug"
+          cmake --build . --target ALL_BUILD
+      - name: make release
+        run: |
+          mkdir build\\release
+          cd build\\release
+          cmake ..\\.. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE="Release"
+          cmake --build . --target ALL_BUILD
+      - name: make install
+        run: |
+          cd build\\release
+          cmake --build . --target INSTALL
+      - name: sudo make uninstall
+        run: |
+          cd build\\release
+          cmake --build . --target uninstall
 # Linux MinGW cross compliation
 
 # job_linux_22_04_cross:
