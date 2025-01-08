@@ -65,22 +65,8 @@ Systems with highlighted versions remain compatible with this toolset.
 | Fedora 32 [x64]                          | 1.0.**23** (`libusbx`)     | 3.**17.0** | May 2021               |
 | openSUSE Leap 15.2 [x64]                 | 1.0.21                     | 3.**17.0** | Dec 2021               |
 | Ubuntu 20.10 (Groovy)                    | 1.0.**23**                 | 3.**16.3** | Jul 2021               |
-| NetBSD 7.x                               | 1.0.22                     | 3.16.1     | Jun 2020               |
 | Alpine 3.11                              | 1.0.**23**                 | 3.15.5     | Nov 2021               |
-| FreeBSD 11.x                             | 1.0.16-18 (API 0x01000102) | 3.15.5     | Sep 2021               |
-| ALT Linux P9                             | 1.0.22                     | 3.**16.3** |                        |
-| Alpine 3.10                              | 1.0.22                     | 3.14.5     | May 2021               |
-| Fedora 31 [x64]                          | 1.0.22 (`libusbx`)         | 3.14.5     | Nov 2020               |
-| Mageia 7.1                               | 1.0.22                     | 3.14.3     | Jun 2021               |
-| Fedora 30                                | 1.0.22 (`libusbx`)         | 3.14.2     | May 2020               |
+| ALT Linux P9                             | 1.0.22                     | 3.**16.3** |                        
 | Ubuntu 19.10 (Eoan)                      | 1.0.**23**                 | 3.13.4     | Jul 2020               |
-| Alpine 3.9                               | 1.0.22                     | 3.13.0     | Jan 2021               |
-| Debian 10 (Buster)                       | 1.0.22                     | 3.13.4     | Jun 2024               |
-| Ubuntu 18.04 LTS (Bionic)                | 1.0.21                     | 3.10.2     | Apr 2023               |
-| openSUSE Leap 15.1 [x64]                 | 1.0.21                     | 3.10.2     | Jan 2021               |
-| Debian 9 (Stretch)                       | 1.0.21                     | 3.7.2      | Jun 2022               |
-| Slackware 14.2                           | 1.0.20                     | 3.5.2      | Jan 2024               |
-| OpenMandriva Lx 3.0x                     | 1.0.20                     | 3.4.2      | Jul 2019               |
-| CentOS / Rocky Linux / AlmaLinux 7 [x64] | 1.0.21 (`libusbx`)         | 2.8.12.2   | Jun 2024               |
 
 _All other operating systems which are not listed are unsupported._
