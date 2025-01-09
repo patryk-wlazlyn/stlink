@@ -24,20 +24,28 @@ uint32_t time_ms() {
 
 int32_t arg_parse_freq(const char *str) {
     if (str == NULL) {
-        return -1;                  // faulty input
+        return -1;                    // faulty input
     }
     
     char* tail = NULL;
-    int32_t value = strtol(str, &tail, 10);
+    int32_t value = (uint32_t) strtol(str, &tail, 10);
+
+    /* == Input value interpretation ==
+     *
+     * These decimal values represent kHz.
+     * The prefix "k" may be added for better understanding, but has no effect.
+     * In addition, values can be interpreted as thousands of kHz thus representing MHz.
+     * This is achieved by using the prefix "M".
+     */
 
     if (tail == NULL) {
-        return -1;                  // faulty integer conversion
+        return -1;                    // faulty integer conversion
     } else if (tail[0] == '\0') {
-        return value;               // no prefix: Hz
-    } else if (tail[0] == 'M' && tail[1] == '\0') {
-        return value * 1000 * 1000; // M prefix: MHz
+        return value;                 // no prefix: kHz
     } else if ((tail[0] == 'k' || tail[0] == 'K') && tail[1] == '\0') {
-        return value * 1000;        // k prefix: kHz
+        return value;                 // k prefix: kHz
+    } else if (tail[0] == 'M' && tail[1] == '\0') {
+        return (value * 1000);        // M prefix: MHz
     }
-    return -1;                      // invalid prefix
+    return -1;                        // invalid prefix
 }
