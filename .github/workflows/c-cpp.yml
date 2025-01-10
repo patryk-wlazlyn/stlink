@@ -2,7 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [feature/unified_workflow]
+    branches: [master, develop, testing]
   pull_request:
     branches: [master, develop, testing]
 
