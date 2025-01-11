@@ -103,21 +103,24 @@ enum stm32_chipids {
     STM32_CHIPID_F0               = 0x440,
     STM32_CHIPID_F412             = 0x441,
     STM32_CHIPID_F09x             = 0x442,
-    STM32_CHIPID_C011xx           = 0x443, /* RM0490 (revision 3), section 26.10.1 "DBG device ID code register (DBG_IDCODE)" */
+    STM32_CHIPID_C011xx           = 0x443, /* RM0490 (revision 5), section 30.10.1 "DBG device ID code register (DBG_IDCODE)" */
     STM32_CHIPID_F0xx_SMALL       = 0x444,
     STM32_CHIPID_F04              = 0x445,
     STM32_CHIPID_F303_HD          = 0x446, /* high density */
     STM32_CHIPID_L0_CAT5          = 0x447,
     STM32_CHIPID_F0_CAN           = 0x448,
     STM32_CHIPID_F7               = 0x449, /* Nucleo F746ZG board */
+    STM32_CHIPID_C051xx           = 0x44C, /* RM0490 (revision 5), section 30.10.1 "DBG device ID code register (DBG_IDCODE)" */
+    STM32_CHIPID_C091xx_C92xx     = 0x44D, /* RM0490 (revision 5), section 30.10.1 "DBG device ID code register (DBG_IDCODE)" */
     STM32_CHIPID_H74xxx           = 0x450, /* RM0433, p.3189 */
     STM32_CHIPID_F76xxx           = 0x451,
     STM32_CHIPID_F72xxx           = 0x452, /* Nucleo F722ZE board */
-    STM32_CHIPID_C031xx           = 0x453, /* RM0490 (revision 3), section 26.10.1 "DBG device ID code register (DBG_IDCODE)" */
+    STM32_CHIPID_C031xx           = 0x453, /* RM0490 (revision 5), section 30.10.1 "DBG device ID code register (DBG_IDCODE)" */
     STM32_CHIPID_U535_U545        = 0x455, /* RM0456, p.3604 */
     STM32_CHIPID_G0_CAT4          = 0x456, /* G051/G061 */
     STM32_CHIPID_L0_CAT1          = 0x457,
     STM32_CHIPID_F410             = 0x458,
+    STM32_CHIPID_U031xx           = 0x459,    
     STM32_CHIPID_G0_CAT2          = 0x460, /* G07x/G08x */
     STM32_CHIPID_L496x_L4A6x      = 0x461,
     STM32_CHIPID_L45x_L46x        = 0x462,
@@ -137,6 +140,8 @@ enum stm32_chipids {
     STM32_CHIPID_U575_U585        = 0x482, /* RM0456, p.3604 */
     STM32_CHIPID_H72x             = 0x483, /* RM0468, p.3199 */
     STM32_CHIPID_H5xx             = 0x484, /* RM0481, p.3085 */
+    STM32_CHIPID_U073xx_U083xx    = 0x489,
+    STM32_CHIPID_C071xx           = 0x493, /* RM0490 (revision 5), section 30.10.1 "DBG device ID code register (DBG_IDCODE)" */
     STM32_CHIPID_WB55             = 0x495,
     STM32_CHIPID_WLE              = 0x497,
 };
@@ -197,8 +202,8 @@ enum stm32_chipids {
 #define STM32WB_DBGMCU_APB1FZR1_WWDG_STOP 11
 #define STM32WB_DBGMCU_APB1FZR1_IWDG_STOP 12
 
-#define STM32C0_RCC_AHBENR 0x40021038         // RM0490 (revision 3), section 5.4.25 "RCC register map"
-#define STM32C0_RCC_DMAEN 0x00000001 // DMAEN // RM0490 (revision 3), section 5.4.25 "RCC register map"
+#define STM32C0_RCC_AHBENR 0x40021038         // RM0490 (revision 5), section 6.4.24 "RCC register map"
+#define STM32C0_RCC_DMAEN 0x00000001 // DMAEN // RM0490 (revision 5), section 6.4.24 "RCC register map"
 
 #define STM32F1_RCC_AHBENR 0x40021014
 #define STM32F1_RCC_DMAEN 0x00000003 // DMA2EN | DMA1EN
