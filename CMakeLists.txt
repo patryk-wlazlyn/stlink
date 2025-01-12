@@ -186,6 +186,7 @@ set(STLINK_HEADERS
         src/stlink-lib/map_file.h
         src/stlink-lib/md5.h
         src/stlink-lib/option_bytes.h
+        src/stlink-lib/programmer.h
         src/stlink-lib/read_write.h
         src/stlink-lib/sg_legacy.h
         src/stlink-lib/usb.h
@@ -203,6 +204,7 @@ set(STLINK_SOURCE
         src/stlink-lib/map_file.c
         src/stlink-lib/md5.c
         src/stlink-lib/option_bytes.c
+        src/stlink-lib/programmer.c
         src/stlink-lib/read_write.c
         src/stlink-lib/sg_legacy.c
         src/stlink-lib/usb.c

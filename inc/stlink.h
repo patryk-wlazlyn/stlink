@@ -1,13 +1,14 @@
 /*
  * File: stlink.h
  *
- * All common top level stlink interfaces, regardless of how the backend does the work....
+ * All common top level stlink interfaces, regardless of how the backend does the work...
  */
 
 #ifndef STLINK_H
 #define STLINK_H
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -21,7 +22,7 @@ extern "C" {
 #define STLINK_ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 /* Max data transfer size */
-// 6kB = max mem32_read block, 8kB sram
+// 6 kB = max mem32_read block, 8 kB sram
 // #define Q_BUF_LEN    96
 #define Q_BUF_LEN (1024 * 100)
 
@@ -238,16 +239,17 @@ struct _stlink {
     uint32_t otp_size;
 };
 
-/* Functions defined in common_legacy.c */
+
+/* === Declaration of functions defined in common_legacy.c === */
 
 int32_t stlink_enter_swd_mode(stlink_t *sl);
-// int32_t stlink_enter_jtag_mode(stlink_t *sl);
 int32_t stlink_exit_debug_mode(stlink_t *sl);
 int32_t stlink_exit_dfu_mode(stlink_t *sl);
 void stlink_close(stlink_t *sl);
 int32_t stlink_core_id(stlink_t *sl);
 int32_t stlink_reset(stlink_t *sl, enum reset_type type);
 int32_t stlink_run(stlink_t *sl, enum run_type type);
+// void stlink_core_stat(stlink_t *sl);
 int32_t stlink_status(stlink_t *sl);
 int32_t stlink_version(stlink_t *sl);
 int32_t stlink_step(stlink_t *sl);
@@ -261,15 +263,27 @@ int32_t stlink_mwrite_sram(stlink_t *sl, uint8_t* data, uint32_t length, stm32_a
 int32_t stlink_fwrite_sram(stlink_t *sl, const char* path, stm32_addr_t addr);
 int32_t stlink_cpu_id(stlink_t *sl, cortex_m3_cpuid_t *cpuid);
 uint32_t stlink_calculate_pagesize(stlink_t *sl, uint32_t flashaddr);
-//void stlink_core_stat(stlink_t *sl);
 void stlink_print_data(stlink_t *sl);
-uint32_t is_bigendian(void);
 bool stlink_is_core_halted(stlink_t *sl);
 int32_t write_buffer_to_sram(stlink_t *sl, flash_loader_t* fl, const uint8_t* buf, uint16_t size);
-// int32_t write_loader_to_sram(stlink_t *sl, stm32_addr_t* addr, uint16_t* size);
 int32_t stlink_fread(stlink_t* sl, const char* path, bool is_ihex, stm32_addr_t addr, uint32_t size);
+// int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id);
 int32_t stlink_load_device_params(stlink_t *sl);
 int32_t stlink_target_connect(stlink_t *sl, enum connect_type connect);
+
+// ==================================================
+
+void stlink_run_at(stlink_t *sl, stm32_addr_t addr);
+
+// --------------------------------------------------
+
+/* Deprecated functions */
+
+// uint32_t is_bigendian(void);
+// int32_t stlink_enter_jtag_mode(stlink_t *sl);
+// int32_t write_loader_to_sram(stlink_t *sl, stm32_addr_t* addr, uint16_t* size);
+
+// --------------------------------------------------
 
 #include <stlink_cmd.h>
 #include <chipid.h>
