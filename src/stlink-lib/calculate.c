@@ -58,14 +58,14 @@ uint32_t calculate_H7_sectornum(stlink_t *sl, uint32_t flashaddr, uint32_t bank)
 uint32_t calculate_L4_page(stlink_t *sl, uint32_t flashaddr) {
   uint32_t bker = 0;
   uint32_t flashopt;
-  stlink_read_debug32(sl, FLASH_L4_OPTR, &flashopt);
+  stlink_read_debug32(sl, STM32_FLASH_L4_OPTR, &flashopt);
   flashaddr -= STM32_FLASH_BASE;
 
   if (sl->chip_id == STM32_CHIPID_L4 ||
       sl->chip_id == STM32_CHIPID_L496x_L4A6x ||
       sl->chip_id == STM32_CHIPID_L4Rx) {
     // these chips use dual bank flash
-    if (flashopt & (uint32_t) (1lu << FLASH_L4_OPTR_DUALBANK)) {
+    if (flashopt & (uint32_t) (1lu << STM32_FLASH_L4_OPTR_DUALBANK)) {
       uint32_t banksize = sl->flash_size / 2;
 
       if (flashaddr >= banksize) {

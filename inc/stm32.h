@@ -147,26 +147,26 @@ enum stm32_chipids {
 };
 
 /* Constant STM32 option bytes base memory address */
-#define STM32_C0_OPTION_BYTES_BASE ((uint32_t) 0x1fff7800)
+#define STM32_OPTION_BYTES_BASE_C0 ((uint32_t) 0x1fff7800)
 
-#define STM32_F4_OPTION_BYTES_BASE ((uint32_t) 0x40023c14)
+#define STM32_OPTION_BYTES_BASE_F4 ((uint32_t) 0x40023c14)
 
-#define STM32_H7_OPTION_BYTES_BASE ((uint32_t) 0x52002020)
+#define STM32_OPTION_BYTES_BASE_H7 ((uint32_t) 0x52002020)
 
-#define STM32_L0_OPTION_BYTES_BASE ((uint32_t) 0x1ff80000)
-#define STM32_L1_OPTION_BYTES_BASE ((uint32_t) 0x1ff80000)
+#define STM32_OPTION_BYTES_BASE_L0 ((uint32_t) 0x1ff80000)
+#define STM32_OPTION_BYTES_BASE_L1 ((uint32_t) 0x1ff80000)
 
-#define STM32_F7_OPTION_BYTES_BASE ((uint32_t) 0x1fff0000)
+#define STM32_OPTION_BYTES_BASE_F7 ((uint32_t) 0x1fff0000)
 
-#define STM32_G0_OPTION_BYTES_BASE ((uint32_t) 0x1fff7800)
-#define STM32_L4_OPTION_BYTES_BASE ((uint32_t) 0x1fff7800)
+#define STM32_OPTION_BYTES_BASE_G0 ((uint32_t) 0x1fff7800)
+#define STM32_OPTION_BYTES_BASE_L4 ((uint32_t) 0x1fff7800)
 
-#define STM32_F2_OPTION_BYTES_BASE ((uint32_t) 0x1fffc000)
+#define STM32_OPTION_BYTES_BASE_F2 ((uint32_t) 0x1fffc000)
 
-#define STM32_F0_OPTION_BYTES_BASE ((uint32_t) 0x1ffff800)
-#define STM32_F1_OPTION_BYTES_BASE ((uint32_t) 0x1ffff800)
-#define STM32_F3_OPTION_BYTES_BASE ((uint32_t) 0x1ffff800)
-#define STM32_G4_OPTION_BYTES_BASE ((uint32_t) 0x1ffff800)
+#define STM32_OPTION_BYTES_BASE_F0 ((uint32_t) 0x1ffff800)
+#define STM32_OPTION_BYTES_BASE_F1 ((uint32_t) 0x1ffff800)
+#define STM32_OPTION_BYTES_BASE_F3 ((uint32_t) 0x1ffff800)
+#define STM32_OPTION_BYTES_BASE_G4 ((uint32_t) 0x1ffff800)
 
 /* ============ */
 /* Old defines from common_legacy.c are below */
