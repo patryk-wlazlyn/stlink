@@ -2,7 +2,7 @@
 /* TODO: This file should be split up into new or existing modules. */
 
 /*
- * File: common.c
+ * File: common_legacy.c
  *
  *
  */
@@ -17,6 +17,8 @@
 // #include <sys/types.h> // TODO: Check use
 
 #include <stlink.h>
+#include <stlink_backend.h>
+#include <stm32_register.h>
 
 #include "calculate.h"
 #include "chipid.h"
@@ -26,7 +28,6 @@
 #include "map_file.h"
 #include "md5.h"
 #include "read_write.h"
-#include "register.h"
 #include "usb.h"
 
 #ifndef O_BINARY

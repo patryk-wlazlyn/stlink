@@ -77,7 +77,7 @@
  */
 
 /*
- * File: sg.c
+ * File: sg_legacy.c
  *
  *
  */
@@ -91,12 +91,14 @@
 #include <assert.h>
 // #include <sys/types.h> // TODO: Check use
 
-#include "sg.h"
+#include <stlink.h>
+#include <stlink_backend.h>
+#include <stlink_cmd.h>
+#include <stm32_register.h>
 
-#include "commands.h"
+#include "sg_legacy.h"
 #include "logging.h"
 #include "read_write.h"
-#include "register.h"
 #include "usb.h"
 // #include <stlink.h>    // TODO: Check use
 

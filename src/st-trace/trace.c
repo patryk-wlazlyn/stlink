@@ -11,11 +11,12 @@
 #include <unistd.h>
 
 #include <stlink.h>
+#include <stlink_backend.h>
+#include <stm32_register.h>
 
 #include <chipid.h>
 #include <logging.h>
 #include <read_write.h>
-#include <register.h>
 #include <usb.h>
 
 #define DEFAULT_LOGGING_LEVEL 50

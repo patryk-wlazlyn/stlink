@@ -5,9 +5,9 @@
 #include <string.h>
 
 #include <stlink.h>
+#include <stm32_register.h>
 
 #include <read_write.h>
-#include <register.h>
 #include <usb.h>
 
 static void usage(void) {

@@ -2,6 +2,7 @@
  * File: logging.c
  *
  * UglyLogging: Slow, yet another wheel reinvented, but enough to make the rest of our code pretty enough.
+ * Ugly, low performance, configurable level, logging "framework"
  */
 
 #define __STDC_WANT_LIB_EXT1__ 1

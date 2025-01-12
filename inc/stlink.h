@@ -12,7 +12,7 @@
 #include <stdbool.h>
 
 #include <stm32.h>
-#include <stm32flash.h>
+#include <stm32_flash.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,8 +184,8 @@ enum run_type {
 
 typedef struct _stlink stlink_t;
 
-#include <stm32.h>
-#include <backend.h>
+#include "stm32.h"
+#include "stlink_backend.h"
 
 struct _stlink {
     struct _stlink_backend *backend;
@@ -224,7 +224,7 @@ struct _stlink {
 
     // bootloader
     // sys_base and sys_size are not used by the tools, but are only there to download the bootloader code
-    // (see tests/sg.c)
+    // (see tests/sg_legacy.c)
     stm32_addr_t sys_base;          // stlink_chipid_params.bootrom_base, set by stlink_load_device_params()
     uint32_t sys_size;              // stlink_chipid_params.bootrom_size, set by stlink_load_device_params()
 
@@ -238,7 +238,7 @@ struct _stlink {
     uint32_t otp_size;
 };
 
-/* Functions defined in common.c */
+/* Functions defined in common_legacy.c */
 
 int32_t stlink_enter_swd_mode(stlink_t *sl);
 // int32_t stlink_enter_jtag_mode(stlink_t *sl);
@@ -271,13 +271,13 @@ int32_t stlink_fread(stlink_t* sl, const char* path, bool is_ihex, stm32_addr_t 
 int32_t stlink_load_device_params(stlink_t *sl);
 int32_t stlink_target_connect(stlink_t *sl, enum connect_type connect);
 
+#include <stlink_cmd.h>
 #include <chipid.h>
-#include <commands.h>
 #include <flash_loader.h>
-#include <sg.h>
+#include <logging.h>
+#include <sg_legacy.h>
 #include <usb.h>
 #include <version.h>
-#include <logging.h>
 
 #ifdef __cplusplus
 }

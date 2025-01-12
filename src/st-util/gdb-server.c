@@ -27,6 +27,8 @@
 #endif
 
 #include <stlink.h>
+#include <stm32_register.h>
+
 #include "gdb-server.h"
 #include "gdb-remote.h"
 #include "memory-map.h"
@@ -38,7 +40,6 @@
 #include <helper.h>
 #include <logging.h>
 #include <read_write.h>
-#include <register.h>
 #include <usb.h>
 
 #define FLASH_BASE 0x08000000

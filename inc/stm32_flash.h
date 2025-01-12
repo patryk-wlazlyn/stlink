@@ -1,5 +1,5 @@
-#ifndef STM32FLASH_H
-#define STM32FLASH_H
+#ifndef STM32_FLASH_H
+#define STM32_FLASH_H
 
 #include <stdint.h>
 
@@ -434,4 +434,4 @@
 #define FLASH_WB_SR_PGAERR (5)      /* Programming error */
 #define FLASH_WB_SR_BSY (16)        /* Busy */
 
-#endif // STM32FLASH_H
+#endif // STM32_FLASH_H

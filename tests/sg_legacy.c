@@ -9,7 +9,7 @@
 
 #include <logging.h>
 #include <read_write.h>
-#include <sg.h>
+#include <sg_legacy.h>
 
 #if defined(_MSC_VER)
 #define __attribute__(x)

@@ -10,14 +10,14 @@
 #include <unistd.h>
 
 #include <stm32.h>
+#include <stm32_register.h>
 #include <stlink.h>
-#include "flash_loader.h"
 
+#include "flash_loader.h"
 #include "common_flash.h"
 #include "helper.h"
 #include "logging.h"
 #include "read_write.h"
-#include "register.h"
 
 #define FLASH_REGS_BANK2_OFS      0x40
 #define FLASH_BANK2_START_ADDR    0x08080000

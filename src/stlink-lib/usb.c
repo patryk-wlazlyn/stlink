@@ -23,12 +23,13 @@
 #include <unistd.h>
 
 #include <stlink.h>
-#include "usb.h"
+#include <stlink_backend.h>
+#include <stlink_cmd.h>
+#include <stm32_register.h>
 
-#include "commands.h"
 #include "logging.h"
 #include "read_write.h"
-#include "register.h"
+#include "usb.h"
 
 static inline uint32_t le_to_h_u32(const uint8_t* buf) {
     return ((uint32_t) ((uint32_t) buf[0] | (uint32_t) buf[1] << 8 | (uint32_t) buf[2] << 16 | (uint32_t) buf[3] << 24));
@@ -85,7 +86,6 @@ void _stlink_usb_close(stlink_t* sl) {
     // maybe we couldn't even get the usb device?
     if (handle != NULL) {
         if (handle->usb_handle != NULL) { libusb_close(handle->usb_handle); }
-
         libusb_exit(handle->libusb_ctx);
         free(handle);
     }
@@ -116,13 +116,13 @@ ssize_t send_recv(struct stlink_libusb* handle, int32_t terminate, unsigned char
             }
 
             /* Checking the command execution status stored in the first byte of the response */
-            if (handle->protocoll != 1 && check_error >= CMD_CHECK_STATUS && 
+            if (handle->protocol != 1 && check_error >= CMD_CHECK_STATUS && 
                         rxbuf[0] != STLINK_DEBUG_ERR_OK) {
                 switch(rxbuf[0]) {
                 case STLINK_DEBUG_ERR_AP_WAIT:
                 case STLINK_DEBUG_ERR_DP_WAIT:
                     if (check_error == CMD_CHECK_RETRY && retry < 3) {
-                        uint32_t delay_us = (1<<retry) * 1000;
+                        uint32_t delay_us = (1 << retry) * 1000;
                         DLOG("%s wait error (0x%02X), delaying %u us and retry\n", cmd, rxbuf[0], delay_us);
                         usleep(delay_us);
                         retry++;
@@ -149,7 +149,7 @@ ssize_t send_recv(struct stlink_libusb* handle, int32_t terminate, unsigned char
             }
         }
 
-        if ((handle->protocoll == 1) && terminate) {
+        if ((handle->protocol == 1) && terminate) {
             // read the SG reply
             unsigned char sg_buf[13];
             t = libusb_bulk_transfer(handle->usb_handle, handle->ep_rep, sg_buf, 13, &res, 3000);
@@ -179,7 +179,7 @@ static int32_t fill_command(stlink_t * sl, enum SCSI_Generic_Direction dir, uint
     int32_t i = 0;
     memset(cmd, 0, sizeof(sl->c_buf));
 
-    if (slu->protocoll == 1) {
+    if (slu->protocol == 1) {
         cmd[i++] = 'U';
         cmd[i++] = 'S';
         cmd[i++] = 'B';
@@ -1181,7 +1181,7 @@ stlink_t *stlink_open_usb(enum ugly_loglevel verbose, enum connect_type connect,
         // if no serial provided, or if serial match device, fixup version and protocol
         if (((serial == NULL) || (*serial == 0)) || (memcmp(serial, &sl->serial, STLINK_SERIAL_LENGTH) == 0)) {
             if (STLINK_V1_USB_PID(desc.idProduct)) {
-                slu->protocoll = 1;
+                slu->protocol = 1;
                 sl->version.stlink_v = 1;
             } else if (STLINK_V2_USB_PID(desc.idProduct) || STLINK_V2_1_USB_PID(desc.idProduct)) {
                 sl->version.stlink_v = 2;
@@ -1266,7 +1266,7 @@ stlink_t *stlink_open_usb(enum ugly_loglevel verbose, enum connect_type connect,
     }
 
     slu->sg_transfer_idx = 0;
-    slu->cmd_len = (slu->protocoll == 1) ? STLINK_SG_SIZE : STLINK_CMD_SIZE;
+    slu->cmd_len = (slu->protocol == 1) ? STLINK_SG_SIZE : STLINK_CMD_SIZE;
 
     // initialize stlink version (sl->version)
     stlink_version(sl);
@@ -1292,7 +1292,7 @@ stlink_t *stlink_open_usb(enum ugly_loglevel verbose, enum connect_type connect,
     sl->freq = freq;
     // set the speed before entering the mode as the chip discovery phase
     // should be done at this speed too
-    // set the stlink clock speed (default is 1800kHz)
+    // set the stlink clock speed (default is 1800 kHz)
     DLOG("JTAG/SWD freq set to %d\n", freq);
     _stlink_usb_set_swdclk(sl, freq);
 

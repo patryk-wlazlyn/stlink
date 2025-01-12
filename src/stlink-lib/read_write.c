@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <stlink.h>
+#include <stlink_backend.h>
 #include "read_write.h"
 
 #include "logging.h"

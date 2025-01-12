@@ -169,7 +169,7 @@ enum stm32_chipids {
 #define STM32_G4_OPTION_BYTES_BASE ((uint32_t) 0x1ffff800)
 
 /* ============ */
-/* Old defines from common.c are below */
+/* Old defines from common_legacy.c are below */
 /* ============ */
 
 /* Constant STM32 memory address */
