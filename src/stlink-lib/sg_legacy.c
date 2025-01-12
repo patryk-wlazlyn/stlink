@@ -572,9 +572,9 @@ int32_t _stlink_sg_reset(stlink_t *sl) {
     if (stlink_q(sl)) { return (-1); }
 
     // Reset through AIRCR so NRST does not need to be connected
-    if (stlink_write_debug32(sl, STLINK_REG_AIRCR,
-                             STLINK_REG_AIRCR_VECTKEY | \
-                             STLINK_REG_AIRCR_SYSRESETREQ)) {
+    if (stlink_write_debug32(sl, STM32_REG_AIRCR,
+                             STM32_REG_AIRCR_VECTKEY | \
+                             STM32_REG_AIRCR_SYSRESETREQ)) {
         return (-1);
     }
 

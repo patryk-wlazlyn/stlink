@@ -105,7 +105,7 @@ int32_t stlink_read_unsupported_reg(stlink_t *sl, int32_t r_idx,
   DLOG("*** stlink_read_unsupported_reg\n");
   DLOG(" (%d) ***\n", r_idx);
 
-  /* Convert to values used by STLINK_REG_DCRSR */
+  /* Convert to values used by STM32_REG_DCRSR */
   if (r_idx >= 0x1C &&
       r_idx <= 0x1F) { // primask, basepri, faultmask, or control
     r_convert = 0x14;
@@ -128,7 +128,7 @@ int32_t stlink_write_unsupported_reg(stlink_t *sl, uint32_t val, int32_t r_idx,
   DLOG("*** stlink_write_unsupported_reg\n");
   DLOG(" (%d) ***\n", r_idx);
 
-  /* Convert to values used by STLINK_REG_DCRSR */
+  /* Convert to values used by STM32_REG_DCRSR */
   if (r_idx >= 0x1C &&
       r_idx <= 0x1F) {        /* primask, basepri, faultmask, or control */
     r_convert = r_idx;        // the backend function handles this

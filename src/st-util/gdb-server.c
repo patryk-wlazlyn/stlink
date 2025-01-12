@@ -425,14 +425,14 @@ static void init_data_watchpoints(stlink_t *sl) {
     DLOG("init watchpoints\n");
 
     // set TRCENA in debug command to turn on DWT unit
-    stlink_read_debug32(sl, STLINK_REG_CM3_DEMCR, &data);
-    data |= STLINK_REG_CM3_DEMCR_TRCENA;
-    stlink_write_debug32(sl, STLINK_REG_CM3_DEMCR, data);
+    stlink_read_debug32(sl, STM32_REG_CM3_DEMCR, &data);
+    data |= STM32_REG_CM3_DEMCR_TRCENA;
+    stlink_write_debug32(sl, STM32_REG_CM3_DEMCR, data);
 
     // make sure all watchpoints are cleared
     for (int32_t i = 0; i < DATA_WATCH_NUM; i++) {
         data_watches[i].fun = WATCHDISABLED;
-        stlink_write_debug32(sl, STLINK_REG_CM3_DWT_FUNn(i), 0);
+        stlink_write_debug32(sl, STM32_REG_CM3_DWT_FUNn(i), 0);
     }
 }
 
@@ -463,16 +463,16 @@ static int32_t add_data_watchpoint(stlink_t *sl, enum watchfun wf, stm32_addr_t 
                 data_watches[i].mask = mask;
 
                 // insert comparator address
-                stlink_write_debug32(sl, STLINK_REG_CM3_DWT_COMPn(i), addr);
+                stlink_write_debug32(sl, STM32_REG_CM3_DWT_COMPn(i), addr);
 
                 // insert mask
-                stlink_write_debug32(sl, STLINK_REG_CM3_DWT_MASKn(i), mask);
+                stlink_write_debug32(sl, STM32_REG_CM3_DWT_MASKn(i), mask);
 
                 // insert function
-                stlink_write_debug32(sl, STLINK_REG_CM3_DWT_FUNn(i), wf);
+                stlink_write_debug32(sl, STM32_REG_CM3_DWT_FUNn(i), wf);
 
                 // just to make sure the matched bit is clear !
-                stlink_read_debug32(sl,  STLINK_REG_CM3_DWT_FUNn(i), &dummy);
+                stlink_read_debug32(sl,  STM32_REG_CM3_DWT_FUNn(i), &dummy);
                 return (0);
             }
     }
@@ -489,7 +489,7 @@ static int32_t delete_data_watchpoint(stlink_t *sl, stm32_addr_t addr) {
             DLOG("delete watchpoint %d addr %x\n", i, addr);
 
             data_watches[i].fun = WATCHDISABLED;
-            stlink_write_debug32(sl, STLINK_REG_CM3_DWT_FUNn(i), 0);
+            stlink_write_debug32(sl, STM32_REG_CM3_DWT_FUNn(i), 0);
 
             return (0);
         }
@@ -520,24 +520,24 @@ static struct code_hw_breakpoint code_breaks[CODE_BREAK_NUM_MAX];
 static void init_code_breakpoints(stlink_t *sl) {
     uint32_t val;
     memset(sl->q_buf, 0, 4);
-    stlink_write_debug32(sl, STLINK_REG_CM3_FP_CTRL, 0x03 /* KEY | ENABLE */);
-    stlink_read_debug32(sl, STLINK_REG_CM3_FP_CTRL, &val);
+    stlink_write_debug32(sl, STM32_REG_CM3_FP_CTRL, 0x03 /* KEY | ENABLE */);
+    stlink_read_debug32(sl, STM32_REG_CM3_FP_CTRL, &val);
     code_break_num = ((val >> 4) & 0xf);
     code_lit_num = ((val >> 8) & 0xf);
     code_break_rev = ((val >> 28) & 0xf);
 
     ILOG("Found %i hw breakpoint registers\n", code_break_num);
 
-    stlink_read_debug32(sl, STLINK_REG_CM3_CPUID, &val);
+    stlink_read_debug32(sl, STM32_REG_CM3_CPUID, &val);
     if (((val>>4) & 0xFFF) == 0xC27) {
         // Cortex-M7 can have locked to write FP_* registers
         // IHI0029D, p. 48, Lock Access Register
-        stlink_write_debug32(sl, STLINK_REG_CM7_FP_LAR, STLINK_REG_CM7_FP_LAR_KEY);
+        stlink_write_debug32(sl, STM32_REG_CM7_FP_LAR, STM32_REG_CM7_FP_LAR_KEY);
     }
 
     for (int32_t i = 0; i < code_break_num; i++) {
         code_breaks[i].type = 0;
-        stlink_write_debug32(sl, STLINK_REG_CM3_FP_COMPn(i), 0);
+        stlink_write_debug32(sl, STM32_REG_CM3_FP_COMPn(i), 0);
     }
 }
 
@@ -592,11 +592,11 @@ static int32_t update_code_breakpoint(stlink_t *sl, stm32_addr_t addr, int32_t s
 
     if (bp->type == 0) {
         DLOG("clearing hw break %d\n", id);
-        stlink_write_debug32(sl, STLINK_REG_CM3_FP_COMPn(id), 0);
+        stlink_write_debug32(sl, STM32_REG_CM3_FP_COMPn(id), 0);
     } else {
         DLOG("setting hw break %d at %08x (%d)\n", id, bp->addr, bp->type);
         DLOG("reg %08x \n", mask);
-        stlink_write_debug32(sl, STLINK_REG_CM3_FP_COMPn(id), mask);
+        stlink_write_debug32(sl, STM32_REG_CM3_FP_COMPn(id), mask);
     }
 
     return (0);
@@ -771,7 +771,7 @@ static void read_cache_level_desc(stlink_t *sl, struct cache_level_desc *desc) {
     uint32_t ccsidr;
     uint32_t log2_nsets;
 
-    stlink_read_debug32(sl, STLINK_REG_CM7_CCSIDR, &ccsidr);
+    stlink_read_debug32(sl, STM32_REG_CM7_CCSIDR, &ccsidr);
     desc->nsets = ((ccsidr >> 13) & 0x3fff) + 1;
     desc->nways = ((ccsidr >> 3) & 0x1ff) + 1;
     desc->log2_nways = ceil_log2 (desc->nways);
@@ -788,7 +788,7 @@ static void init_cache (stlink_t *sl) {
     int32_t i;
 
     // Check have cache
-    stlink_read_debug32(sl, STLINK_REG_CM7_CTR, &ctr);
+    stlink_read_debug32(sl, STM32_REG_CM7_CTR, &ctr);
     if ((ctr >> 29) != 0x04) {
         cache_desc.used = 0;
         return;
@@ -797,12 +797,12 @@ static void init_cache (stlink_t *sl) {
     cache_desc.dminline = 4 << ((ctr >> 16) & 0x0f);
     cache_desc.iminline = 4 << (ctr & 0x0f);
 
-    stlink_read_debug32(sl, STLINK_REG_CM7_CLIDR, &clidr);
+    stlink_read_debug32(sl, STM32_REG_CM7_CLIDR, &clidr);
     cache_desc.louu = (clidr >> 27) & 7;
 
-    stlink_read_debug32(sl, STLINK_REG_CM7_CCR, &ccr);
+    stlink_read_debug32(sl, STM32_REG_CM7_CCR, &ccr);
     ILOG("Chip clidr: %08x, I-Cache: %s, D-Cache: %s\n",
-         clidr, ccr & STLINK_REG_CM7_CCR_IC ? "on" : "off", ccr & STLINK_REG_CM7_CCR_DC ? "on" : "off");
+         clidr, ccr & STM32_REG_CM7_CCR_IC ? "on" : "off", ccr & STM32_REG_CM7_CCR_DC ? "on" : "off");
     ILOG(" cache: LoUU: %u, LoC: %u, LoUIS: %u\n",
          (clidr >> 27) & 7, (clidr >> 24) & 7, (clidr >> 21) & 7);
     ILOG(" cache: ctr: %08x, DminLine: %u bytes, IminLine: %u bytes\n", ctr,
@@ -814,13 +814,13 @@ static void init_cache (stlink_t *sl) {
         cache_desc.icache[i].width = 0;
 
         if (ct == 2 || ct == 3 || ct == 4) { // data
-            stlink_write_debug32(sl, STLINK_REG_CM7_CSSELR, i << 1);
+            stlink_write_debug32(sl, STM32_REG_CM7_CSSELR, i << 1);
             ILOG("D-Cache L%d: ", i);
             read_cache_level_desc(sl, &cache_desc.dcache[i]);
         }
 
         if (ct == 1 || ct == 3) { // instruction
-            stlink_write_debug32(sl, STLINK_REG_CM7_CSSELR, (i << 1) | 1);
+            stlink_write_debug32(sl, STM32_REG_CM7_CSSELR, (i << 1) | 1);
             ILOG("I-Cache L%d: ", i);
             read_cache_level_desc(sl, &cache_desc.icache[i]);
         }
@@ -830,7 +830,7 @@ static void init_cache (stlink_t *sl) {
 static void cache_flush(stlink_t *sl, uint32_t ccr) {
     int32_t level;
 
-    if (ccr & STLINK_REG_CM7_CCR_DC) {
+    if (ccr & STM32_REG_CM7_CCR_DC) {
         for (level = cache_desc.louu - 1; level >= 0; level--) {
             struct cache_level_desc *desc = &cache_desc.dcache[level];
             uint32_t addr;
@@ -842,15 +842,15 @@ static void cache_flush(stlink_t *sl, uint32_t ccr) {
                 uint32_t way;
 
                 for (way = 0; way < desc->nways; way++) {
-                    stlink_write_debug32(sl, STLINK_REG_CM7_DCCSW, addr | (way << way_sh));
+                    stlink_write_debug32(sl, STM32_REG_CM7_DCCSW, addr | (way << way_sh));
                 }
             }
         }
     }
 
     // invalidate all I-cache to oPU
-    if (ccr & STLINK_REG_CM7_CCR_IC) {
-        stlink_write_debug32(sl, STLINK_REG_CM7_ICIALLU, 0);
+    if (ccr & STM32_REG_CM7_CCR_IC) {
+        stlink_write_debug32(sl, STM32_REG_CM7_ICIALLU, 0);
     }
 }
 
@@ -871,8 +871,8 @@ static void cache_sync(stlink_t *sl) {
     if (!cache_modified) { return; }
 
     cache_modified = 0;
-    stlink_read_debug32(sl, STLINK_REG_CM7_CCR, &ccr);
-    if (ccr & (STLINK_REG_CM7_CCR_IC | STLINK_REG_CM7_CCR_DC)) { cache_flush(sl, ccr); }
+    stlink_read_debug32(sl, STM32_REG_CM7_CCR, &ccr);
+    if (ccr & (STM32_REG_CM7_CCR_IC | STM32_REG_CM7_CCR_DC)) { cache_flush(sl, ccr); }
 }
 
 static uint32_t unhexify(const char *in, char *out, uint32_t out_count) {

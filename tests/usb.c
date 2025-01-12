@@ -71,7 +71,7 @@ int32_t main(int32_t ac, char** av) {
             stlink_read_mem32(sl, sram_base + off, 4);
 
         printf("FP_CTRL\n");
-        stlink_read_mem32(sl, STLINK_REG_CM3_FP_CTRL, 4);
+        stlink_read_mem32(sl, STM32_REG_CM3_FP_CTRL, 4);
 
         // no idea what reg this is...
         // stlink_read_mem32(sl, 0xe000ed90, 4);

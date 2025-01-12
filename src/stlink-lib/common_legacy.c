@@ -85,7 +85,7 @@ int32_t stlink_exit_debug_mode(stlink_t *sl) {
   if (sl->flash_type != STM32_FLASH_TYPE_UNKNOWN &&
       sl->core_stat != TARGET_RESET) {
     // stop debugging if the target has been identified
-    stlink_write_debug32(sl, STLINK_REG_DHCSR, STLINK_REG_DHCSR_DBGKEY);
+    stlink_write_debug32(sl, STM32_REG_DHCSR, STM32_REG_DHCSR_DBGKEY);
   }
 
   return (sl->backend->exit_debug_mode(sl));
@@ -145,7 +145,7 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
 
   // Read the CPU ID to determine where to read the core id
   if (stlink_cpu_id(sl, &cpu_id) ||
-      cpu_id.implementer_id != STLINK_REG_CMx_CPUID_IMPL_ARM) {
+      cpu_id.implementer_id != STM32_REG_CMx_CPUID_IMPL_ARM) {
     ELOG("Can not connect to target. Please use \'connect under reset\' and try again\n");
     return -1;
   }
@@ -156,16 +156,16 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
    */
 
   if ((sl->core_id == STM32_CORE_ID_M7F_M33_SWD || sl->core_id == STM32_CORE_ID_M7F_M33_JTAG) &&
-      cpu_id.part == STLINK_REG_CMx_CPUID_PARTNO_CM7) {
+      cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM7) {
     // STM32H7 chipid in 0x5c001000 (RM0433 pg3189)
     ret = stlink_read_debug32(sl, 0x5c001000, chip_id);
-  } else if (cpu_id.part == STLINK_REG_CMx_CPUID_PARTNO_CM0 ||
-             cpu_id.part == STLINK_REG_CMx_CPUID_PARTNO_CM0P) {
+  } else if (cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM0 ||
+             cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM0P) {
     // STM32F0 (RM0091, pg914; RM0360, pg713)
     // STM32L0 (RM0377, pg813; RM0367, pg915; RM0376, pg917)
     // STM32G0 (RM0444, pg1367)
     ret = stlink_read_debug32(sl, 0x40015800, chip_id);
-  } else if (cpu_id.part == STLINK_REG_CMx_CPUID_PARTNO_CM33) {
+  } else if (cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM33) {
     // STM32L5 (RM0438, pg2157)
     ret = stlink_read_debug32(sl, 0xE0044000, chip_id);
   } else /* СM3, СM4, CM7 */ {
@@ -191,7 +191,7 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
 
     // Fix chip_id for F4 rev A errata, read CPU ID, as CoreID is the same for
     // F2/F4
-    if (*chip_id == 0x411 && cpu_id.part == STLINK_REG_CMx_CPUID_PARTNO_CM4) {
+    if (*chip_id == 0x411 && cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM4) {
       *chip_id = 0x413;
     }
   }
@@ -208,7 +208,7 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
 int32_t stlink_cpu_id(stlink_t *sl, cortex_m3_cpuid_t *cpuid) {
   uint32_t raw;
 
-  if (stlink_read_debug32(sl, STLINK_REG_CM3_CPUID, &raw)) {
+  if (stlink_read_debug32(sl, STM32_REG_CM3_CPUID, &raw)) {
     cpuid->implementer_id = 0;
     cpuid->variant = 0;
     cpuid->part = 0;
@@ -344,7 +344,7 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
 
   if (type == RESET_AUTO) {
     // clear S_RESET_ST in DHCSR register for reset state detection
-    stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
+    stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
   }
 
   if (type == RESET_HARD || type == RESET_AUTO) {
@@ -366,8 +366,8 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
      */
 
     dhcsr = 0;
-    int32_t res = stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
-    if ((dhcsr & STLINK_REG_DHCSR_S_RESET_ST) == 0 && !res) {
+    int32_t res = stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
+    if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0 && !res) {
       // reset not done yet --> try reset through AIRCR so that NRST does not need to be connected
       ILOG("NRST is not connected --> using software reset via AIRCR\n");
       DLOG("NRST not connected --> Reset through SYSRESETREQ\n");
@@ -377,9 +377,9 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
     // waiting for reset the S_RESET_ST bit within 500ms
     timeout = time_ms() + 500;
     while (time_ms() < timeout) {
-      dhcsr = STLINK_REG_DHCSR_S_RESET_ST;
-      stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
-      if ((dhcsr & STLINK_REG_DHCSR_S_RESET_ST) == 0) {
+      dhcsr = STM32_REG_DHCSR_S_RESET_ST;
+      stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
+      if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
         return (0);
       }
     }
@@ -403,33 +403,33 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
 
   // halt core and enable debugging (if not already done)
   // C_DEBUGEN is required to Halt on reset (DDI0337E, p. 10-6)
-  stlink_write_debug32(sl, STLINK_REG_DHCSR,
-                       STLINK_REG_DHCSR_DBGKEY | STLINK_REG_DHCSR_C_HALT |
-                           STLINK_REG_DHCSR_C_DEBUGEN);
+  stlink_write_debug32(sl, STM32_REG_DHCSR,
+                       STM32_REG_DHCSR_DBGKEY | STM32_REG_DHCSR_C_HALT |
+                           STM32_REG_DHCSR_C_DEBUGEN);
 
   // enable Halt on reset by set VC_CORERESET and TRCENA (DDI0337E, p. 10-10)
   if (halt_on_reset) {
     stlink_write_debug32(
-        sl, STLINK_REG_CM3_DEMCR,
-        STLINK_REG_CM3_DEMCR_TRCENA | STLINK_REG_CM3_DEMCR_VC_HARDERR |
-            STLINK_REG_CM3_DEMCR_VC_BUSERR | STLINK_REG_CM3_DEMCR_VC_CORERESET);
+        sl, STM32_REG_CM3_DEMCR,
+        STM32_REG_CM3_DEMCR_TRCENA | STM32_REG_CM3_DEMCR_VC_HARDERR |
+            STM32_REG_CM3_DEMCR_VC_BUSERR | STM32_REG_CM3_DEMCR_VC_CORERESET);
 
     // clear VCATCH in the DFSR register
-    stlink_write_debug32(sl, STLINK_REG_DFSR, STLINK_REG_DFSR_VCATCH);
+    stlink_write_debug32(sl, STM32_REG_DFSR, STM32_REG_DFSR_VCATCH);
   } else {
-    stlink_write_debug32(sl, STLINK_REG_CM3_DEMCR,
-                         STLINK_REG_CM3_DEMCR_TRCENA |
-                             STLINK_REG_CM3_DEMCR_VC_HARDERR |
-                             STLINK_REG_CM3_DEMCR_VC_BUSERR);
+    stlink_write_debug32(sl, STM32_REG_CM3_DEMCR,
+                         STM32_REG_CM3_DEMCR_TRCENA |
+                             STM32_REG_CM3_DEMCR_VC_HARDERR |
+                             STM32_REG_CM3_DEMCR_VC_BUSERR);
   }
 
   // clear S_RESET_ST in the DHCSR register
-  stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
+  stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
 
   // soft reset (core reset) by SYSRESETREQ (DDI0337E, p. 8-23)
-  ret = stlink_write_debug32(sl, STLINK_REG_AIRCR,
-                             STLINK_REG_AIRCR_VECTKEY |
-                                 STLINK_REG_AIRCR_SYSRESETREQ);
+  ret = stlink_write_debug32(sl, STM32_REG_AIRCR,
+                             STM32_REG_AIRCR_VECTKEY |
+                                 STM32_REG_AIRCR_SYSRESETREQ);
   if (ret) {
     ELOG("Soft reset failed: error write to AIRCR\n");
     return (ret);
@@ -440,15 +440,15 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
   timeout = time_ms() + 500;
   while (time_ms() < timeout) {
     // DDI0337E, p. 10-4, Debug Halting Control and Status Register
-    dhcsr = STLINK_REG_DHCSR_S_RESET_ST;
-    stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
-    if ((dhcsr & STLINK_REG_DHCSR_S_RESET_ST) == 0) {
+    dhcsr = STM32_REG_DHCSR_S_RESET_ST;
+    stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
+    if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
       if (halt_on_reset) {
         // waiting halt by the SYSRESETREQ exception
         // DDI0403E, p. C1-699, Debug Fault Status Register
         dfsr = 0;
-        stlink_read_debug32(sl, STLINK_REG_DFSR, &dfsr);
-        if ((dfsr & STLINK_REG_DFSR_VCATCH) == 0) {
+        stlink_read_debug32(sl, STM32_REG_DFSR, &dfsr);
+        if ((dfsr & STM32_REG_DFSR_VCATCH) == 0) {
           continue;
         }
       }
@@ -458,7 +458,7 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
   }
 
   // reset DFSR register. DFSR is power-on reset only (DDI0337H, p. 7-5)
-  stlink_write_debug32(sl, STLINK_REG_DFSR, STLINK_REG_DFSR_CLEAR);
+  stlink_write_debug32(sl, STM32_REG_DFSR, STM32_REG_DFSR_CLEAR);
 
   if (timeout) {
     ELOG("Soft reset failed: timeout\n");
@@ -1051,8 +1051,8 @@ int32_t stlink_target_connect(stlink_t *sl, enum connect_type connect) {
 
     // check NRST connection
     uint32_t dhcsr = 0;
-    stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
-    if ((dhcsr & STLINK_REG_DHCSR_S_RESET_ST) == 0) {
+    stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
+    if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
       WLOG("NRST is not connected\n");
     }
 

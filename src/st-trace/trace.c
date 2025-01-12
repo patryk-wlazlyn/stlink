@@ -258,63 +258,63 @@ static bool enable_trace(stlink_t *stlink, const st_settings_t *settings, uint32
     if (!settings->force) return false;
   }
 
-  stlink_write_debug32(stlink, STLINK_REG_DHCSR,
-                       STLINK_REG_DHCSR_DBGKEY | STLINK_REG_DHCSR_C_DEBUGEN |
-                           STLINK_REG_DHCSR_C_HALT);
-  stlink_write_debug32(stlink, STLINK_REG_DEMCR, STLINK_REG_DEMCR_TRCENA);
-  stlink_write_debug32(stlink, STLINK_REG_CM3_FP_CTRL,
-                       STLINK_REG_CM3_FP_CTRL_KEY);
-  stlink_write_debug32(stlink, STLINK_REG_DWT_FUNCTION0, 0);
-  stlink_write_debug32(stlink, STLINK_REG_DWT_FUNCTION1, 0);
-  stlink_write_debug32(stlink, STLINK_REG_DWT_FUNCTION2, 0);
-  stlink_write_debug32(stlink, STLINK_REG_DWT_FUNCTION3, 0);
-  stlink_write_debug32(stlink, STLINK_REG_DWT_CTRL, 0);
-  stlink_write_debug32(stlink, STLINK_REG_DBGMCU_CR,
-      STLINK_REG_DBGMCU_CR_DBG_SLEEP | STLINK_REG_DBGMCU_CR_DBG_STOP |
-          STLINK_REG_DBGMCU_CR_DBG_STANDBY | STLINK_REG_DBGMCU_CR_TRACE_IOEN |
-          STLINK_REG_DBGMCU_CR_TRACE_MODE_ASYNC);
+  stlink_write_debug32(stlink, STM32_REG_DHCSR,
+                       STM32_REG_DHCSR_DBGKEY | STM32_REG_DHCSR_C_DEBUGEN |
+                           STM32_REG_DHCSR_C_HALT);
+  stlink_write_debug32(stlink, STM32_REG_DEMCR, STM32_REG_DEMCR_TRCENA);
+  stlink_write_debug32(stlink, STM32_REG_CM3_FP_CTRL,
+                       STM32_REG_CM3_FP_CTRL_KEY);
+  stlink_write_debug32(stlink, STM32_REG_DWT_FUNCTION0, 0);
+  stlink_write_debug32(stlink, STM32_REG_DWT_FUNCTION1, 0);
+  stlink_write_debug32(stlink, STM32_REG_DWT_FUNCTION2, 0);
+  stlink_write_debug32(stlink, STM32_REG_DWT_FUNCTION3, 0);
+  stlink_write_debug32(stlink, STM32_REG_DWT_CTRL, 0);
+  stlink_write_debug32(stlink, STM32_REG_DBGMCU_CR,
+      STM32_REG_DBGMCU_CR_DBG_SLEEP | STM32_REG_DBGMCU_CR_DBG_STOP |
+          STM32_REG_DBGMCU_CR_DBG_STANDBY | STM32_REG_DBGMCU_CR_TRACE_IOEN |
+          STM32_REG_DBGMCU_CR_TRACE_MODE_ASYNC);
 
   if (stlink_trace_enable(stlink, trace_frequency)) {
     ELOG("Unable to turn on tracing in stlink\n");
     if (!settings->force) return false;
   }
 
-  stlink_write_debug32(stlink, STLINK_REG_TPI_CSPSR, STLINK_REG_TPI_CSPSR_PORT_SIZE_1);
+  stlink_write_debug32(stlink, STM32_REG_TPI_CSPSR, STM32_REG_TPI_CSPSR_PORT_SIZE_1);
 
   if (settings->core_frequency) {
     uint32_t prescaler = settings->core_frequency / trace_frequency - 1;
-    if (prescaler > STLINK_REG_TPI_ACPR_MAX) {
+    if (prescaler > STM32_REG_TPI_ACPR_MAX) {
       ELOG("Trace frequency prescaler %d out of range. Try setting a faster "
            "trace frequency.\n", prescaler);
       if (!settings->force) return false;
     }
-    stlink_write_debug32(stlink, STLINK_REG_TPI_ACPR,
+    stlink_write_debug32(stlink, STM32_REG_TPI_ACPR,
                          prescaler); // Set TPIU_ACPR clock divisor
   }
-  stlink_write_debug32(stlink, STLINK_REG_TPI_FFCR,
-                       STLINK_REG_TPI_FFCR_TRIG_IN);
-  stlink_write_debug32(stlink, STLINK_REG_TPI_SPPR,
-                       STLINK_REG_TPI_SPPR_SWO_NRZ);
-  stlink_write_debug32(stlink, STLINK_REG_ITM_LAR, STLINK_REG_ITM_LAR_KEY);
-  stlink_write_debug32(stlink, STLINK_REG_ITM_TCC, 0x00000400); // Set sync counter
-  stlink_write_debug32(stlink, STLINK_REG_ITM_TCR,
-                       STLINK_REG_ITM_TCR_TRACE_BUS_ID_1 |
-                          STLINK_REG_ITM_TCR_TS_ENA |
-                          STLINK_REG_ITM_TCR_ITM_ENA);
-  stlink_write_debug32(stlink, STLINK_REG_ITM_TER,
-                       STLINK_REG_ITM_TER_PORTS_ALL);
-  stlink_write_debug32(stlink, STLINK_REG_ITM_TPR,
-                       STLINK_REG_ITM_TPR_PORTS_ALL);
-  stlink_write_debug32(stlink, STLINK_REG_DWT_CTRL,
-                       4 * STLINK_REG_DWT_CTRL_NUM_COMP |
-                           STLINK_REG_DWT_CTRL_CYC_TAP |
-                           0xF * STLINK_REG_DWT_CTRL_POST_INIT |
-                           0xF * STLINK_REG_DWT_CTRL_POST_PRESET |
-                           STLINK_REG_DWT_CTRL_CYCCNT_ENA);
-  stlink_write_debug32(stlink, STLINK_REG_DEMCR, STLINK_REG_DEMCR_TRCENA);
+  stlink_write_debug32(stlink, STM32_REG_TPI_FFCR,
+                       STM32_REG_TPI_FFCR_TRIG_IN);
+  stlink_write_debug32(stlink, STM32_REG_TPI_SPPR,
+                       STM32_REG_TPI_SPPR_SWO_NRZ);
+  stlink_write_debug32(stlink, STM32_REG_ITM_LAR, STM32_REG_ITM_LAR_KEY);
+  stlink_write_debug32(stlink, STM32_REG_ITM_TCC, 0x00000400); // Set sync counter
+  stlink_write_debug32(stlink, STM32_REG_ITM_TCR,
+                       STM32_REG_ITM_TCR_TRACE_BUS_ID_1 |
+                          STM32_REG_ITM_TCR_TS_ENA |
+                          STM32_REG_ITM_TCR_ITM_ENA);
+  stlink_write_debug32(stlink, STM32_REG_ITM_TER,
+                       STM32_REG_ITM_TER_PORTS_ALL);
+  stlink_write_debug32(stlink, STM32_REG_ITM_TPR,
+                       STM32_REG_ITM_TPR_PORTS_ALL);
+  stlink_write_debug32(stlink, STM32_REG_DWT_CTRL,
+                       4 * STM32_REG_DWT_CTRL_NUM_COMP |
+                           STM32_REG_DWT_CTRL_CYC_TAP |
+                           0xF * STM32_REG_DWT_CTRL_POST_INIT |
+                           0xF * STM32_REG_DWT_CTRL_POST_PRESET |
+                           STM32_REG_DWT_CTRL_CYCCNT_ENA);
+  stlink_write_debug32(stlink, STM32_REG_DEMCR, STM32_REG_DEMCR_TRCENA);
 
   uint32_t prescaler = 0;
-  stlink_read_debug32(stlink, STLINK_REG_TPI_ACPR, &prescaler);
+  stlink_read_debug32(stlink, STM32_REG_TPI_ACPR, &prescaler);
   if (prescaler) {
     uint32_t system_clock_speed = (prescaler + 1) * trace_frequency;
     ILOG("Trace Port Interface configured to expect a %d Hz system clock.\n",
@@ -470,7 +470,7 @@ static void check_for_configuration_error(stlink_t *stlink, st_trace_t *trace, u
 
   if (error_no_data || error_low_data || error_bad_data) {
     uint32_t prescaler = 0;
-    stlink_read_debug32(stlink, STLINK_REG_TPI_ACPR, &prescaler);
+    stlink_read_debug32(stlink, STM32_REG_TPI_ACPR, &prescaler);
     if (prescaler) {
       uint32_t system_clock_speed = (prescaler + 1) * trace_frequency;
       WLOG("Verify the system clock is running at %d Hz.\n", system_clock_speed);
@@ -583,7 +583,7 @@ int32_t main(int32_t argc, char **argv) {
 
   if (settings.core_frequency != 0) {
     if (max_trace_freq > settings.core_frequency / 5) max_trace_freq = settings.core_frequency / 5;
-    min_trace_freq = settings.core_frequency / (STLINK_REG_TPI_ACPR_MAX + 1);
+    min_trace_freq = settings.core_frequency / (STM32_REG_TPI_ACPR_MAX + 1);
   }
   if (trace_frequency > max_trace_freq || trace_frequency < min_trace_freq) {
     ELOG("Invalid trace frequency %d (min %d max %d)\n", trace_frequency, min_trace_freq,

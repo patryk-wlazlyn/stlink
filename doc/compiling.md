@@ -119,12 +119,9 @@ or execute (Debian-based systems only): `apt-get install gcc build-essential cma
 5. Run `make debug` to create the _Debug_ target (_optional_)<br />
    The debug target is only necessary in order to modify the sources and to run under a debugger.
 6. Run `make package`to build a Debian Package. The generated packages can be found in the subdirectory `./build/Release/dist`.
+7. Installing system-wide (`sudo make install`) requires the dynamic library cache to be updated with `sudo ldconfig` afterwards.
 
 As an option you may also install to an individual user-defined folder e.g `$HOME` with `make install DESTDIR=$HOME`.
-
-### How to avoid the error message: "Can not open shared object file"
-
-When installing system-wide (`sudo make install`) the dynamic library cache needs to be updated with the command `ldconfig`.
 
 #### Removal:
 

@@ -167,13 +167,13 @@ int32_t stlink_flash_loader_init(stlink_t *sl, flash_loader_t *fl) {
     uint32_t dfsr, cfsr, hfsr;
 
     /* Interrupt masking according to DDI0419C, Table C1-7 firstly force halt */
-    stlink_write_debug32(sl, STLINK_REG_DHCSR,
-                           STLINK_REG_DHCSR_DBGKEY | STLINK_REG_DHCSR_C_DEBUGEN |
-                           STLINK_REG_DHCSR_C_HALT);
+    stlink_write_debug32(sl, STM32_REG_DHCSR,
+                           STM32_REG_DHCSR_DBGKEY | STM32_REG_DHCSR_C_DEBUGEN |
+                           STM32_REG_DHCSR_C_HALT);
     /* and only then disable interrupts */
-    stlink_write_debug32(sl, STLINK_REG_DHCSR,
-                           STLINK_REG_DHCSR_DBGKEY | STLINK_REG_DHCSR_C_DEBUGEN |
-                           STLINK_REG_DHCSR_C_HALT | STLINK_REG_DHCSR_C_MASKINTS);
+    stlink_write_debug32(sl, STM32_REG_DHCSR,
+                           STM32_REG_DHCSR_DBGKEY | STM32_REG_DHCSR_C_DEBUGEN |
+                           STM32_REG_DHCSR_C_HALT | STM32_REG_DHCSR_C_MASKINTS);
 
     // allocate the loader in SRAM
     if (stlink_flash_loader_write_to_sram(sl, &fl->loader_addr, &size) == -1) {
@@ -193,17 +193,17 @@ int32_t stlink_flash_loader_init(stlink_t *sl, flash_loader_t *fl) {
     }
 
     /* Clear Fault Status Register for handling flash loader error */
-    if (!stlink_read_debug32(sl, STLINK_REG_DFSR, &dfsr) && dfsr) {
+    if (!stlink_read_debug32(sl, STM32_REG_DFSR, &dfsr) && dfsr) {
         ILOG("Clear DFSR\n");
-        stlink_write_debug32(sl, STLINK_REG_DFSR, dfsr);
+        stlink_write_debug32(sl, STM32_REG_DFSR, dfsr);
     }
-    if (!stlink_read_debug32(sl, STLINK_REG_CFSR, &cfsr) && cfsr) {
+    if (!stlink_read_debug32(sl, STM32_REG_CFSR, &cfsr) && cfsr) {
         ILOG("Clear CFSR\n");
-        stlink_write_debug32(sl, STLINK_REG_CFSR, cfsr);
+        stlink_write_debug32(sl, STM32_REG_CFSR, cfsr);
     }
-    if (!stlink_read_debug32(sl, STLINK_REG_HFSR, &hfsr) && hfsr) {
+    if (!stlink_read_debug32(sl, STM32_REG_HFSR, &hfsr) && hfsr) {
         ILOG("Clear HFSR\n");
-        stlink_write_debug32(sl, STLINK_REG_HFSR, hfsr);
+        stlink_write_debug32(sl, STM32_REG_HFSR, hfsr);
     }
 
     return (0);
@@ -409,10 +409,10 @@ int32_t stlink_flash_loader_run(stlink_t *sl, flash_loader_t* fl, stm32_addr_t t
 
   error:
       dhcsr = dfsr = cfsr = hfsr = 0;
-      stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr);
-      stlink_read_debug32(sl, STLINK_REG_DFSR, &dfsr);
-      stlink_read_debug32(sl, STLINK_REG_CFSR, &cfsr);
-      stlink_read_debug32(sl, STLINK_REG_HFSR, &hfsr);
+      stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
+      stlink_read_debug32(sl, STM32_REG_DFSR, &dfsr);
+      stlink_read_debug32(sl, STM32_REG_CFSR, &cfsr);
+      stlink_read_debug32(sl, STM32_REG_HFSR, &hfsr);
       stlink_read_all_regs(sl, &rr);
 
       WLOG("Loader state: R2 0x%X R15 0x%X\n", rr.r[2], rr.r[15]);
@@ -900,9 +900,9 @@ int32_t stlink_flashloader_stop(stlink_t *sl, flash_loader_t *fl) {
   }
 
   // enable interrupt
-  if (!stlink_read_debug32(sl, STLINK_REG_DHCSR, &dhcsr)) {
-    stlink_write_debug32(sl, STLINK_REG_DHCSR, STLINK_REG_DHCSR_DBGKEY | STLINK_REG_DHCSR_C_DEBUGEN |
-                         (dhcsr & (~STLINK_REG_DHCSR_C_MASKINTS)));
+  if (!stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr)) {
+    stlink_write_debug32(sl, STM32_REG_DHCSR, STM32_REG_DHCSR_DBGKEY | STM32_REG_DHCSR_C_DEBUGEN |
+                         (dhcsr & (~STM32_REG_DHCSR_C_MASKINTS)));
   }
 
   // restore DMA state
