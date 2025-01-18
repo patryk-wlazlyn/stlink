@@ -93,7 +93,7 @@ static void stop_wdg_in_debug(stlink_t *sl) {
     break;
   case STM32_FLASH_TYPE_L0_L1:
   case STM32_FLASH_TYPE_G0:
-    if (get_stm32l0_flash_base(sl) == STM32_FLASH_Lx_REGS_ADDR) {
+    if(get_stm32l0_flash_base(sl) == STM32_FLASH_Lx_REGS_ADDR) {
       dbgmcu_cr = STM32L1_DBGMCU_APB1_FZ;
       set = (1 << STM32L1_DBGMCU_APB1_FZ_IWDG_STOP) |
             (1 << STM32L1_DBGMCU_APB1_FZ_WWDG_STOP);
@@ -116,7 +116,7 @@ static void stop_wdg_in_debug(stlink_t *sl) {
     return;
   }
 
-  if (!stlink_read_debug32(sl, dbgmcu_cr, &value)) {
+  if(!stlink_read_debug32(sl, dbgmcu_cr, &value)) {
     stlink_write_debug32(sl, dbgmcu_cr, value | set);
   }
 }
@@ -140,7 +140,7 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
                            STM32_REG_DHCSR_C_DEBUGEN);
 
   // enable Halt on reset by set VC_CORERESET and TRCENA (DDI0337E, p. 10-10)
-  if (halt_on_reset) {
+  if(halt_on_reset) {
     stlink_write_debug32(
         sl, STM32_REG_CM3_DEMCR,
         STM32_REG_CM3_DEMCR_TRCENA | STM32_REG_CM3_DEMCR_VC_HARDERR |
@@ -162,7 +162,7 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
   ret = stlink_write_debug32(sl, STM32_REG_AIRCR,
                              STM32_REG_AIRCR_VECTKEY |
                                  STM32_REG_AIRCR_SYSRESETREQ);
-  if (ret) {
+  if(ret) {
     ELOG("Soft reset failed: error write to AIRCR\n");
     return (ret);
   }
@@ -174,13 +174,13 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
     // DDI0337E, p. 10-4, Debug Halting Control and Status Register
     dhcsr = STM32_REG_DHCSR_S_RESET_ST;
     stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
-    if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
-      if (halt_on_reset) {
+    if((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
+      if(halt_on_reset) {
         // waiting halt by the SYSRESETREQ exception
         // DDI0403E, p. C1-699, Debug Fault Status Register
         dfsr = 0;
         stlink_read_debug32(sl, STM32_REG_DFSR, &dfsr);
-        if ((dfsr & STM32_REG_DFSR_VCATCH) == 0) {
+        if((dfsr & STM32_REG_DFSR_VCATCH) == 0) {
           continue;
         }
       }
@@ -192,7 +192,7 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
   // reset DFSR register. DFSR is power-on reset only (DDI0337H, p. 7-5)
   stlink_write_debug32(sl, STM32_REG_DFSR, STM32_REG_DFSR_CLEAR);
 
-  if (timeout) {
+  if(timeout) {
     ELOG("Soft reset failed: timeout\n");
     return (-1);
   }
@@ -208,7 +208,7 @@ int32_t stlink_soft_reset(stlink_t *sl, int32_t halt_on_reset) {
 void _parse_version(stlink_t *sl, stlink_version_t *slv) {
   sl->version.flags = 0;
 
-  if (sl->version.stlink_v < 3) {
+  if(sl->version.stlink_v < 3) {
     uint32_t b0 = sl->q_buf[0]; // lsb
     uint32_t b1 = sl->q_buf[1];
     uint32_t b2 = sl->q_buf[2];
@@ -227,18 +227,18 @@ void _parse_version(stlink_t *sl, stlink_version_t *slv) {
     slv->stlink_pid = (b5 << 8) | b4;
 
     // ST-LINK/V1 from J11 switch to api-v2 (and support SWD)
-    if (slv->stlink_v == 1) {
+    if(slv->stlink_v == 1) {
       slv->jtag_api =
           slv->jtag_v > 11 ? STLINK_JTAG_API_V2 : STLINK_JTAG_API_V1;
     } else {
       slv->jtag_api = STLINK_JTAG_API_V2;
 
       // preferred API to get last R/W status from J15
-      if (sl->version.jtag_v >= 15) {
+      if(sl->version.jtag_v >= 15) {
         sl->version.flags |= STLINK_F_HAS_GETLASTRWSTATUS2;
       }
 
-      if (sl->version.jtag_v >= 13) {
+      if(sl->version.jtag_v >= 13) {
         sl->version.flags |= STLINK_F_HAS_TRACE;
         sl->max_trace_freq = STLINK_V2_MAX_TRACE_FREQUENCY;
       }
@@ -266,14 +266,14 @@ void _parse_version(stlink_t *sl, stlink_version_t *slv) {
 static uint8_t stlink_parse_hex(const char *hex) {
   uint8_t d[2];
 
-  for (int32_t i = 0; i < 2; ++i) {
+  for(int32_t i = 0; i < 2; ++i) {
     char c = *(hex + i);
 
-    if (c >= '0' && c <= '9') {
+    if(c >= '0' && c <= '9') {
       d[i] = c - '0';
-    } else if (c >= 'A' && c <= 'F') {
+    } else if(c >= 'A' && c <= 'F') {
       d[i] = c - 'A' + 10;
-    } else if (c >= 'a' && c <= 'f') {
+    } else if(c >= 'a' && c <= 'f') {
       d[i] = c - 'a' + 10;
     } else {
       return (0); // error
@@ -287,33 +287,33 @@ static int32_t stlink_read(stlink_t *sl, stm32_addr_t addr, uint32_t size, save_
 
   int32_t error = -1;
 
-  if (size < 1) {
+  if(size < 1) {
     size = sl->flash_size;
   }
 
-  if (size > sl->flash_size) {
+  if(size > sl->flash_size) {
     size = sl->flash_size;
   }
 
   uint32_t cmp_size = (sl->flash_pgsz > 0x1800) ? 0x1800 : sl->flash_pgsz;
 
-  for (uint32_t off = 0; off < size; off += cmp_size) {
+  for(uint32_t off = 0; off < size; off += cmp_size) {
     uint32_t aligned_size;
 
     // adjust last page size
-    if ((off + cmp_size) > size) {
+    if((off + cmp_size) > size) {
       cmp_size = size - off;
     }
 
     aligned_size = cmp_size;
 
-    if (aligned_size & (4 - 1)) {
+    if(aligned_size & (4 - 1)) {
       aligned_size = (cmp_size + 4) & ~(4 - 1);
     }
 
     stlink_read_mem32(sl, addr + off, (uint16_t) aligned_size);
 
-    if (!fn(fn_arg, sl->q_buf, aligned_size)) {
+    if(!fn(fn_arg, sl->q_buf, aligned_size)) {
       goto on_error;
     }
   }
@@ -340,7 +340,7 @@ static bool stlink_fread_ihex_newsegment(struct stlink_fread_ihex_worker_arg *th
   uint8_t sum = 2 + 4 + (uint8_t) ((addr & 0xFF000000) >> 24) +
                 (uint8_t) ((addr & 0x00FF0000) >> 16);
 
-  if (17 != fprintf(the_arg->file, ":02000004%04X%02X\r\n",
+  if(17 != fprintf(the_arg->file, ":02000004%04X%02X\r\n",
                     (addr & 0xFFFF0000) >> 16, (uint8_t) (0x100 - sum))) {
     return (false);
   }
@@ -353,14 +353,14 @@ static bool stlink_fread_ihex_newsegment(struct stlink_fread_ihex_worker_arg *th
 static bool stlink_fread_ihex_writeline(struct stlink_fread_ihex_worker_arg *the_arg) {
   uint8_t count = the_arg->buf_pos;
 
-  if (count == 0) {
+  if(count == 0) {
     return (true);
   }
 
   uint32_t addr = the_arg->addr;
 
-  if (the_arg->lba != (addr & 0xFFFF0000)) { // segment changed
-    if (!stlink_fread_ihex_newsegment(the_arg)) {
+  if(the_arg->lba != (addr & 0xFFFF0000)) { // segment changed
+    if(!stlink_fread_ihex_newsegment(the_arg)) {
       return (false);
     }
   }
@@ -368,20 +368,20 @@ static bool stlink_fread_ihex_writeline(struct stlink_fread_ihex_worker_arg *the
   uint8_t sum = count + (uint8_t) ((addr & 0x0000FF00) >> 8) +
                 (uint8_t) (addr & 0x000000FF);
 
-  if (9 != fprintf(the_arg->file, ":%02X%04X00", count, (addr & 0x0000FFFF))) {
+  if(9 != fprintf(the_arg->file, ":%02X%04X00", count, (addr & 0x0000FFFF))) {
     return (false);
   }
 
-  for (uint8_t i = 0; i < count; ++i) {
+  for(uint8_t i = 0; i < count; ++i) {
     uint8_t b = the_arg->buf[i];
     sum += b;
 
-    if (2 != fprintf(the_arg->file, "%02X", b)) {
+    if(2 != fprintf(the_arg->file, "%02X", b)) {
       return (false);
     }
   }
 
-  if (4 != fprintf(the_arg->file, "%02X\r\n", (uint8_t) (0x100 - sum))) {
+  if(4 != fprintf(the_arg->file, "%02X\r\n", (uint8_t) (0x100 - sum))) {
     return (false);
   }
 
@@ -395,9 +395,9 @@ static bool stlink_fread_ihex_worker(void *arg, uint8_t *block, ssize_t len) {
   struct stlink_fread_ihex_worker_arg *the_arg =
       (struct stlink_fread_ihex_worker_arg *)arg;
 
-  for (ssize_t i = 0; i < len; ++i) {
-    if (the_arg->buf_pos == sizeof(the_arg->buf)) { // line is full
-      if (!stlink_fread_ihex_writeline(the_arg)) {
+  for(ssize_t i = 0; i < len; ++i) {
+    if(the_arg->buf_pos == sizeof(the_arg->buf)) { // line is full
+      if(!stlink_fread_ihex_writeline(the_arg)) {
         return (false);
       }
     }
@@ -409,13 +409,13 @@ static bool stlink_fread_ihex_worker(void *arg, uint8_t *block, ssize_t len) {
 }
 
 static bool stlink_fread_ihex_finalize(struct stlink_fread_ihex_worker_arg *the_arg) {
-  if (!stlink_fread_ihex_writeline(the_arg)) {
+  if(!stlink_fread_ihex_writeline(the_arg)) {
     return (false);
   }
 
   // FIXME: do we need the Start Linear Address?
 
-  if (13 != fprintf(the_arg->file, ":00000001FF\r\n")) { // EoF
+  if(13 != fprintf(the_arg->file, ":00000001FF\r\n")) { // EoF
     return (false);
   }
 
@@ -425,7 +425,7 @@ static bool stlink_fread_ihex_finalize(struct stlink_fread_ihex_worker_arg *the_
 static bool stlink_fread_worker(void *arg, uint8_t *block, ssize_t len) {
   struct stlink_fread_worker_arg *the_arg = (struct stlink_fread_worker_arg *)arg;
 
-  if (write(the_arg->fd, block, len) != len) {
+  if(write(the_arg->fd, block, len) != len) {
     fprintf(stderr, "write() != aligned_size\n");
     return (false);
   } else {
@@ -444,7 +444,7 @@ int32_t stlink_enter_swd_mode(stlink_t *sl) {
 int32_t stlink_exit_debug_mode(stlink_t *sl) {
   DLOG("*** stlink_exit_debug_mode ***\n");
 
-  if (sl->flash_type != STM32_FLASH_TYPE_UNKNOWN &&
+  if(sl->flash_type != STM32_FLASH_TYPE_UNKNOWN &&
       sl->core_stat != TARGET_RESET) {
     // stop debugging if the target has been identified
     stlink_write_debug32(sl, STM32_REG_DHCSR, STM32_REG_DHCSR_DBGKEY);
@@ -461,7 +461,7 @@ int32_t stlink_exit_dfu_mode(stlink_t *sl) {
 void stlink_close(stlink_t *sl) {
   DLOG("*** stlink_close ***\n");
 
-  if (!sl) {
+  if(!sl) {
     return;
   }
 
@@ -475,12 +475,12 @@ int32_t stlink_core_id(stlink_t *sl) {
   DLOG("*** stlink_core_id ***\n");
   ret = sl->backend->core_id(sl);
 
-  if (ret == -1) {
+  if(ret == -1) {
     ELOG("Failed to read core_id\n");
     return (ret);
   }
 
-  if (sl->verbose > 2) {
+  if(sl->verbose > 2) {
     stlink_print_data(sl);
   }
 
@@ -496,14 +496,14 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
 
   sl->core_stat = TARGET_RESET;
 
-  if (type == RESET_AUTO) {
+  if(type == RESET_AUTO) {
     // clear S_RESET_ST in DHCSR register for reset state detection
     stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
   }
 
-  if (type == RESET_HARD || type == RESET_AUTO) {
+  if(type == RESET_HARD || type == RESET_AUTO) {
     // hardware target reset
-    if (sl->version.stlink_v > 1) {
+    if(sl->version.stlink_v > 1) {
       stlink_jtag_reset(sl, STLINK_DEBUG_APIV2_DRIVE_NRST_LOW);
       // minimum reset pulse duration of 20 us (RM0008, 8.1.2 Power reset)
       usleep(100);
@@ -513,7 +513,7 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
     usleep(10000);
   }
 
-  if (type == RESET_AUTO) {
+  if(type == RESET_AUTO) {
     /* Check if the S_RESET_ST bit is set in DHCSR
      * This means that a reset has occurred
      * DDI0337E, p. 10-4, Debug Halting Control and Status Register
@@ -521,7 +521,7 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
 
     dhcsr = 0;
     int32_t res = stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
-    if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0 && !res) {
+    if((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0 && !res) {
       // reset not done yet --> try reset through AIRCR so that NRST does not need to be connected
       ILOG("NRST is not connected --> using software reset via AIRCR\n");
       DLOG("NRST not connected --> Reset through SYSRESETREQ\n");
@@ -533,7 +533,7 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
     while (time_ms() < timeout) {
       dhcsr = STM32_REG_DHCSR_S_RESET_ST;
       stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
-      if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
+      if((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
         return (0);
       }
     }
@@ -541,7 +541,7 @@ int32_t stlink_reset(stlink_t *sl, enum reset_type type) {
     return (-1);
   }
 
-  if (type == RESET_SOFT || type == RESET_SOFT_AND_HALT) {
+  if(type == RESET_SOFT || type == RESET_SOFT_AND_HALT) {
     return stlink_soft_reset(sl, (type == RESET_SOFT_AND_HALT));
   }
 
@@ -556,7 +556,7 @@ int32_t stlink_run(stlink_t *sl, enum run_type type) {
    * Cortex-M chips don't support ARM mode instructions
    * xPSR may be incorrect if the vector table has invalid data */
   stlink_read_reg(sl, 16, &rr);
-  if ((rr.xpsr & (1 << 24)) == 0) {
+  if((rr.xpsr & (1 << 24)) == 0) {
     ILOG("Go to Thumb mode\n");
     stlink_write_reg(sl, rr.xpsr | (1 << 24), 16);
   }
@@ -597,7 +597,7 @@ int32_t stlink_status(stlink_t *sl) {
 int32_t stlink_version(stlink_t *sl) {
   DLOG("*** looking up stlink version ***\n");
 
-  if (sl->backend->version(sl)) {
+  if(sl->backend->version(sl)) {
     return (-1);
   }
 
@@ -610,7 +610,7 @@ int32_t stlink_version(stlink_t *sl) {
   DLOG("jtag version   = 0x%x\n", sl->version.jtag_v);
   DLOG("swim version   = 0x%x\n", sl->version.swim_v);
 
-  if (sl->version.jtag_v == 0) {
+  if(sl->version.jtag_v == 0) {
     WLOG("    warning: stlink doesn't support JTAG/SWD interface\n");
   }
 
@@ -645,7 +645,7 @@ int32_t stlink_current_mode(stlink_t *sl) {
 int32_t stlink_force_debug(stlink_t *sl) {
   DLOG("*** stlink_force_debug_mode ***\n");
   int32_t res = sl->backend->force_debug(sl);
-  if (res) {
+  if(res) {
      return (res);
   }
   // Stop the watchdogs in the halted state for suppress target reboot
@@ -657,10 +657,10 @@ int32_t stlink_target_voltage(stlink_t *sl) {
   int32_t voltage = -1;
   DLOG("*** reading target voltage\n");
 
-  if (sl->backend->target_voltage != NULL) {
+  if(sl->backend->target_voltage != NULL) {
     voltage = sl->backend->target_voltage(sl);
 
-    if (voltage != -1) {
+    if(voltage != -1) {
       DLOG("target voltage = %imV\n", voltage);
     } else {
       DLOG("error reading target voltage\n");
@@ -685,16 +685,16 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
   uint32_t end = 0;
   bool eof_found = false;
 
-  for (int32_t scan = 0; (res == 0) && (scan < 2); ++scan) {
+  for(int32_t scan = 0; (res == 0) && (scan < 2); ++scan) {
     // parse file two times - first to find memory range, second - to fill it
-    if (scan == 1) {
-      if (!eof_found) {
+    if(scan == 1) {
+      if(!eof_found) {
         ELOG("No EoF recond\n");
         res = -1;
         break;
       }
 
-      if (*begin >= end) {
+      if(*begin >= end) {
         ELOG("No data found in file\n");
         res = -1;
         break;
@@ -703,7 +703,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
       *size = (end - *begin) + 1;
       data = calloc(1, *size); // use calloc to get NULL if out of memory
 
-      if (!data) {
+      if(!data) {
         ELOG("Cannot allocate %u bytes\n", (*size));
         res = -1;
         break;
@@ -714,7 +714,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
 
     FILE *file = fopen(path, "r");
 
-    if (!file) {
+    if(!file) {
       ELOG("Cannot open file\n");
       res = -1;
       break;
@@ -724,11 +724,11 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
     char line[1 + 5 * 2 + 255 * 2 + 2];
 
     while (fgets(line, sizeof(line), file)) {
-      if (line[0] == '\n' || line[0] == '\r') {
+      if(line[0] == '\n' || line[0] == '\r') {
         continue;
       } // skip empty lines
 
-      if (line[0] != ':') { // no marker - wrong file format
+      if(line[0] != ':') { // no marker - wrong file format
         ELOG("Wrong file format - no marker\n");
         res = -1;
         break;
@@ -740,7 +740,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
         --l;
       } // trim EoL
 
-      if ((l < 11) ||
+      if((l < 11) ||
           (l ==
            (sizeof(line) - 1))) { // line too short or long - wrong file format
         ELOG("Wrong file format - wrong line length\n");
@@ -750,11 +750,11 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
 
       uint8_t chksum = 0; // check sum
 
-      for (uint32_t i = 1; i < l; i += 2) {
+      for(uint32_t i = 1; i < l; i += 2) {
         chksum += stlink_parse_hex(line + i);
       }
 
-      if (chksum != 0) {
+      if(chksum != 0) {
         ELOG("Wrong file format - checksum mismatch\n");
         res = -1;
         break;
@@ -762,7 +762,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
 
       uint8_t reclen = stlink_parse_hex(line + 1);
 
-      if (((uint32_t) reclen + 5) * 2 + 1 != l) {
+      if(((uint32_t) reclen + 5) * 2 + 1 != l) {
         ELOG("Wrong file format - record length mismatch\n");
         res = -1;
         break;
@@ -774,23 +774,23 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
 
       switch (rectype) {
       case 0: /* Data */
-        if (scan == 0) {
+        if(scan == 0) {
           uint32_t b = lba + offset;
           uint32_t e = b + reclen - 1;
 
-          if (b < *begin) {
+          if(b < *begin) {
             *begin = b;
           }
 
-          if (e > end) {
+          if(e > end) {
             end = e;
           }
         } else {
-          for (uint8_t i = 0; i < reclen; ++i) {
+          for(uint8_t i = 0; i < reclen; ++i) {
             uint8_t b = stlink_parse_hex(line + 9 + i * 2);
             uint32_t addr = lba + offset + i;
 
-            if (addr >= *begin && addr <= end) {
+            if(addr >= *begin && addr <= end) {
               data[addr - *begin] = b;
             }
           }
@@ -806,7 +806,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
         res = -1;
         break;
       case 4: /* Extended Linear Address */
-        if (reclen == 2) {
+        if(reclen == 2) {
           lba = ((uint32_t) stlink_parse_hex(line + 9) << 24) |
                 ((uint32_t) stlink_parse_hex(line + 11) << 16);
         } else {
@@ -821,7 +821,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
         res = -1;
       }
 
-      if (res != 0) {
+      if(res != 0) {
         break;
       }
     }
@@ -829,7 +829,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
     fclose(file);
   }
 
-  if (res == 0) {
+  if(res == 0) {
     *mem = data;
   } else {
     free(data);
@@ -839,7 +839,7 @@ int32_t stlink_parse_ihex(const char *path, uint8_t erased_pattern, uint8_t **me
 }
 
 uint8_t stlink_get_erased_pattern(stlink_t *sl) {
-  if (sl->flash_type == STM32_FLASH_TYPE_L0_L1) {
+  if(sl->flash_type == STM32_FLASH_TYPE_L0_L1) {
     return (0x00);
   } else {
     return (0xff);
@@ -854,44 +854,44 @@ int32_t stlink_mwrite_sram(stlink_t *sl, uint8_t *data, uint32_t length, stm32_a
   uint32_t len;
 
   // check addr range is inside the sram
-  if (addr < sl->sram_base) {
+  if(addr < sl->sram_base) {
     fprintf(stderr, "addr too low\n");
     goto on_error;
-  } else if ((addr + length) < addr) {
+  } else if((addr + length) < addr) {
     fprintf(stderr, "addr overruns\n");
     goto on_error;
-  } else if ((addr + length) > (sl->sram_base + sl->sram_size)) {
+  } else if((addr + length) > (sl->sram_base + sl->sram_size)) {
     fprintf(stderr, "addr too high\n");
     goto on_error;
-  } else if (addr & 3) {
+  } else if(addr & 3) {
     fprintf(stderr, "unaligned addr\n");
     goto on_error;
   }
 
   len = length;
 
-  if (len & 3) {
+  if(len & 3) {
     len -= len & 3;
   }
 
   // do the copy by 1kB blocks
-  for (off = 0; off < len; off += 1024) {
+  for(off = 0; off < len; off += 1024) {
     uint32_t size = 1024;
 
-    if ((off + size) > len) {
+    if((off + size) > len) {
       size = len - off;
     }
 
     memcpy(sl->q_buf, data + off, size);
 
-    if (size & 3) {
+    if(size & 3) {
       size += 2;
     } // round size if needed
 
     stlink_write_mem32(sl, addr + off, (uint16_t) size);
   }
 
-  if (length > len) {
+  if(length > len) {
     memcpy(sl->q_buf, data + len, length - len);
     stlink_write_mem8(sl, addr + len, (uint16_t) (length - len));
   }
@@ -911,7 +911,7 @@ int32_t stlink_fwrite_sram(stlink_t *sl, const char *path, stm32_addr_t addr) {
   uint32_t len;
   mapped_file_t mf = MAPPED_FILE_INITIALIZER;
 
-  if (map_file(&mf, path) == -1) {
+  if(map_file(&mf, path) == -1) {
     fprintf(stderr, "map_file() == -1\n");
     return (-1);
   }
@@ -921,50 +921,50 @@ int32_t stlink_fwrite_sram(stlink_t *sl, const char *path, stm32_addr_t addr) {
   stlink_checksum(&mf);
 
   // check if addr range is inside the SRAM
-  if (addr < sl->sram_base) {
+  if(addr < sl->sram_base) {
     fprintf(stderr, "addr too low\n");
     goto on_error;
-  } else if ((addr + mf.len) < addr) {
+  } else if((addr + mf.len) < addr) {
     fprintf(stderr, "addr overruns\n");
     goto on_error;
-  } else if ((addr + mf.len) > (sl->sram_base + sl->sram_size)) {
+  } else if((addr + mf.len) > (sl->sram_base + sl->sram_size)) {
     fprintf(stderr, "addr too high\n");
     goto on_error;
-  } else if (addr & 3) {
+  } else if(addr & 3) {
     fprintf(stderr, "unaligned addr\n");
     goto on_error;
   }
 
   len = mf.len;
 
-  if (len & 3) {
+  if(len & 3) {
     len -= len & 3;
   }
 
   // do the copy by 1kB blocks
-  for (off = 0; off < len; off += 1024) {
+  for(off = 0; off < len; off += 1024) {
     uint32_t size = 1024;
 
-    if ((off + size) > len) {
+    if((off + size) > len) {
       size = len - off;
     }
 
     memcpy(sl->q_buf, mf.base + off, size);
 
-    if (size & 3) {
+    if(size & 3) {
       size += 2;
     } // round size if needed
 
     stlink_write_mem32(sl, addr + off, (uint16_t) size);
   }
 
-  if (mf.len > len) {
+  if(mf.len > len) {
     memcpy(sl->q_buf, mf.base + len, mf.len - len);
     stlink_write_mem8(sl, addr + len, (uint16_t) (mf.len - len));
   }
 
   // check the file has been written
-  if (check_file(sl, &mf, addr) == -1) {
+  if(check_file(sl, &mf, addr) == -1) {
     fprintf(stderr, "check_file() == -1\n");
     goto on_error;
   }
@@ -985,7 +985,7 @@ int32_t stlink_fwrite_sram(stlink_t *sl, const char *path, stm32_addr_t addr) {
 int32_t stlink_cpu_id(stlink_t *sl, cortex_m3_cpuid_t *cpuid) {
   uint32_t raw;
 
-  if (stlink_read_debug32(sl, STM32_REG_CM3_CPUID, &raw)) {
+  if(stlink_read_debug32(sl, STM32_REG_CM3_CPUID, &raw)) {
     cpuid->implementer_id = 0;
     cpuid->variant = 0;
     cpuid->part = 0;
@@ -1002,7 +1002,7 @@ int32_t stlink_cpu_id(stlink_t *sl, cortex_m3_cpuid_t *cpuid) {
 
 uint32_t stlink_calculate_pagesize(stlink_t *sl, uint32_t flashaddr) {
 
-  if ((sl->chip_id == STM32_CHIPID_F2) ||
+  if((sl->chip_id == STM32_CHIPID_F2) ||
       (sl->chip_id == STM32_CHIPID_F4) ||
       (sl->chip_id == STM32_CHIPID_F4_DE) ||
       (sl->chip_id == STM32_CHIPID_F4_LP) ||
@@ -1014,24 +1014,24 @@ uint32_t stlink_calculate_pagesize(stlink_t *sl, uint32_t flashaddr) {
       (sl->chip_id == STM32_CHIPID_F412)) {
     uint32_t sector = calculate_F4_sectornum(flashaddr);
 
-    if (sector >= 12) {
+    if(sector >= 12) {
       sector -= 12;
     }
 
-    if (sector < 4) {
+    if(sector < 4) {
       sl->flash_pgsz = 0x4000;
-    } else if (sector < 5) {
+    } else if(sector < 5) {
       sl->flash_pgsz = 0x10000;
     } else {
       sl->flash_pgsz = 0x20000;
     }
-  } else if (sl->chip_id == STM32_CHIPID_F7 ||
+  } else if(sl->chip_id == STM32_CHIPID_F7 ||
              sl->chip_id == STM32_CHIPID_F76xxx) {
     uint32_t sector = calculate_F7_sectornum(flashaddr);
 
-    if (sector < 4) {
+    if(sector < 4) {
       sl->flash_pgsz = 0x8000;
-    } else if (sector < 5) {
+    } else if(sector < 5) {
       sl->flash_pgsz = 0x20000;
     } else {
       sl->flash_pgsz = 0x40000;
@@ -1042,18 +1042,18 @@ uint32_t stlink_calculate_pagesize(stlink_t *sl, uint32_t flashaddr) {
 }
 
 void stlink_print_data(stlink_t *sl) {
-  if (sl->q_len <= 0 || sl->verbose < UDEBUG) {
+  if(sl->q_len <= 0 || sl->verbose < UDEBUG) {
     return;
   }
 
-  if (sl->verbose > 2) {
+  if(sl->verbose > 2) {
     DLOG("data_len = %d 0x%x\n", sl->q_len, sl->q_len);
   }
 
-  for (int32_t i = 0; i < sl->q_len; i++) {
-    if (i % 16 == 0) {
+  for(int32_t i = 0; i < sl->q_len; i++) {
+    if(i % 16 == 0) {
       /*
-      if (sl->q_data_dir == Q_DATA_OUT) {
+      if(sl->q_data_dir == Q_DATA_OUT) {
           fprintf(stdout, "\n<- 0x%08x ", sl->q_addr + i);
       } else {
           fprintf(stdout, "\n-> 0x%08x ", sl->q_addr + i);
@@ -1078,12 +1078,12 @@ int32_t write_buffer_to_sram(stlink_t *sl, flash_loader_t *fl, const uint8_t *bu
   uint16_t chunk = size & ~0x3;
   uint16_t rem = size & 0x3;
 
-  if (chunk) {
+  if(chunk) {
     memcpy(sl->q_buf, buf, chunk);
     ret = stlink_write_mem32(sl, fl->buf_addr, chunk);
   }
 
-  if (rem && !ret) {
+  if(rem && !ret) {
     memcpy(sl->q_buf, buf + chunk, rem);
     ret = stlink_write_mem8(sl, (fl->buf_addr) + chunk, rem);
   }
@@ -1098,18 +1098,18 @@ int32_t stlink_fread(stlink_t *sl, const char *path, bool is_ihex, stm32_addr_t 
   int32_t error;
   int32_t fd = open(path, O_RDWR | O_TRUNC | O_CREAT | O_BINARY, 00700);
 
-  if (fd == -1) {
+  if(fd == -1) {
     fprintf(stderr, "open(%s) == -1\n", path);
     return (-1);
   }
 
-  if (is_ihex) {
+  if(is_ihex) {
     struct stlink_fread_ihex_worker_arg arg;
 
-    if (stlink_fread_ihex_init(&arg, fd, addr)) {
+    if(stlink_fread_ihex_init(&arg, fd, addr)) {
       error = stlink_read(sl, addr, size, &stlink_fread_ihex_worker, &arg);
 
-      if (!stlink_fread_ihex_finalize(&arg)) {
+      if(!stlink_fread_ihex_finalize(&arg)) {
         error = -1;
       }
     } else {
@@ -1131,7 +1131,7 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
   cortex_m3_cpuid_t cpu_id;
 
   // Read the CPU ID to determine where to read the core id
-  if (stlink_cpu_id(sl, &cpu_id) ||
+  if(stlink_cpu_id(sl, &cpu_id) ||
       cpu_id.implementer_id != STM32_REG_CMx_CPUID_IMPL_ARM) {
     ELOG("Can not connect to target. Please use \'connect under reset\' and try again\n");
     return -1;
@@ -1142,17 +1142,17 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
    * DBGMCU_IDCODE / DBG_IDCODE name
    */
 
-  if ((sl->core_id == STM32_CORE_ID_M7F_M33_SWD || sl->core_id == STM32_CORE_ID_M7F_M33_JTAG) &&
+  if((sl->core_id == STM32_CORE_ID_M7F_M33_SWD || sl->core_id == STM32_CORE_ID_M7F_M33_JTAG) &&
       cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM7) {
     // STM32H7 chipid in 0x5c001000 (RM0433 pg3189)
     ret = stlink_read_debug32(sl, 0x5c001000, chip_id);
-  } else if (cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM0 ||
+  } else if(cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM0 ||
              cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM0P) {
     // STM32F0 (RM0091, pg914; RM0360, pg713)
     // STM32L0 (RM0377, pg813; RM0367, pg915; RM0376, pg917)
     // STM32G0 (RM0444, pg1367)
     ret = stlink_read_debug32(sl, 0x40015800, chip_id);
-  } else if (cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM33) {
+  } else if(cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM33) {
     // STM32L5 (RM0438, pg2157)
     ret = stlink_read_debug32(sl, 0xE0044000, chip_id);
   } else /* СM3, СM4, CM7 */ {
@@ -1169,7 +1169,7 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
     ret = stlink_read_debug32(sl, 0xE0042000, chip_id);
   }
 
-  if (ret || !(*chip_id)) {
+  if(ret || !(*chip_id)) {
     *chip_id = 0;
     ret = ret?ret:-1;
     ELOG("Could not find chip id!\n");
@@ -1178,7 +1178,7 @@ int32_t stlink_chip_id(stlink_t *sl, uint32_t *chip_id) {
 
     // Fix chip_id for F4 rev A errata, read CPU ID, as CoreID is the same for
     // F2/F4
-    if (*chip_id == 0x411 && cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM4) {
+    if(*chip_id == 0x411 && cpu_id.part == STM32_REG_CMx_CPUID_PARTNO_CM4) {
       *chip_id = 0x413;
     }
   }
@@ -1199,18 +1199,18 @@ int32_t stlink_load_device_params(stlink_t *sl) {
   stlink_core_id(sl);
   uint32_t flash_size;
 
-  if (stlink_chip_id(sl, &sl->chip_id)) {
+  if(stlink_chip_id(sl, &sl->chip_id)) {
     return (-1);
   }
 
   params = stlink_chipid_get_params(sl->chip_id);
 
-  if (params == NULL) {
+  if(params == NULL) {
     WLOG("unknown chip id! %#x\n", sl->chip_id);
     return (-1);
   }
 
-  if (params->flash_type == STM32_FLASH_TYPE_UNKNOWN) {
+  if(params->flash_type == STM32_FLASH_TYPE_UNKNOWN) {
     WLOG("Invalid flash type, please check device declaration\n");
     sl->flash_size = 0;
     return (0);
@@ -1221,22 +1221,22 @@ int32_t stlink_load_device_params(stlink_t *sl) {
   sl->sram_base = STM32_SRAM_BASE;
   stlink_read_debug32(sl, (params->flash_size_reg) & ~3, &flash_size);
 
-  if (params->flash_size_reg & 2) {
+  if(params->flash_size_reg & 2) {
     flash_size = flash_size >> 16;
   }
 
   flash_size = flash_size & 0xffff;
 
-  if ((sl->chip_id == STM32_CHIPID_L1_MD ||
+  if((sl->chip_id == STM32_CHIPID_L1_MD ||
        sl->chip_id == STM32_CHIPID_F1_VL_MD_LD ||
        sl->chip_id == STM32_CHIPID_L1_MD_PLUS) &&
       (flash_size == 0)) {
     sl->flash_size = 128 * 1024;
-  } else if (sl->chip_id == STM32_CHIPID_L1_CAT2) {
+  } else if(sl->chip_id == STM32_CHIPID_L1_CAT2) {
     sl->flash_size = (flash_size & 0xff) * 1024;
-  } else if ((sl->chip_id & 0xFFF) == STM32_CHIPID_L1_MD_PLUS_HD) {
+  } else if((sl->chip_id & 0xFFF) == STM32_CHIPID_L1_MD_PLUS_HD) {
     // 0 is 384k and 1 is 256k
-    if (flash_size == 0) {
+    if(flash_size == 0) {
       sl->flash_size = 384 * 1024;
     } else {
       sl->flash_size = 256 * 1024;
@@ -1258,32 +1258,32 @@ int32_t stlink_load_device_params(stlink_t *sl) {
 
   // medium and low devices have the same chipid. ram size depends on flash
   // size. STM32F100xx datasheet Doc ID 16455 Table 2
-  if (sl->chip_id == STM32_CHIPID_F1_VL_MD_LD && sl->flash_size < 64 * 1024) {
+  if(sl->chip_id == STM32_CHIPID_F1_VL_MD_LD && sl->flash_size < 64 * 1024) {
     sl->sram_size = 0x1000;
   }
 
-  if (sl->chip_id == STM32_CHIPID_G4_CAT3) {
+  if(sl->chip_id == STM32_CHIPID_G4_CAT3) {
     uint32_t flash_optr;
     stlink_read_debug32(sl, STM32_FLASH_Gx_OPTR, &flash_optr);
 
-    if (!(flash_optr & (1 << STM32_FLASH_G4_OPTR_DBANK))) {
+    if(!(flash_optr & (1 << STM32_FLASH_G4_OPTR_DBANK))) {
       sl->flash_pgsz <<= 1;
     }
   }
 
-  if (sl->chip_id == STM32_CHIPID_L5x2xx) {
+  if(sl->chip_id == STM32_CHIPID_L5x2xx) {
     uint32_t flash_optr;
     stlink_read_debug32(sl, STM32_FLASH_L5_OPTR, &flash_optr);
 
-    if (sl->flash_size == 512*1024 && (flash_optr & (1 << 22)) != 0) {
+    if(sl->flash_size == 512*1024 && (flash_optr & (1 << 22)) != 0) {
       sl->flash_pgsz = 0x800;
     }
   }
   
   // H7 devices with small flash has one bank
-  if (sl->chip_flags & CHIP_F_HAS_DUAL_BANK &&
+  if(sl->chip_flags & CHIP_F_HAS_DUAL_BANK &&
       sl->flash_type == STM32_FLASH_TYPE_H7) {
-    if ((sl->flash_size / sl->flash_pgsz) <= 1)
+    if((sl->flash_size / sl->flash_pgsz) <= 1)
       sl->chip_flags &= ~CHIP_F_HAS_DUAL_BANK;
   }
 
@@ -1296,7 +1296,7 @@ int32_t stlink_load_device_params(stlink_t *sl) {
 }
 
 int32_t stlink_target_connect(stlink_t *sl, enum connect_type connect) {
-  if (connect == CONNECT_UNDER_RESET) {
+  if(connect == CONNECT_UNDER_RESET) {
     stlink_enter_swd_mode(sl);
 
     stlink_jtag_reset(sl, STLINK_DEBUG_APIV2_DRIVE_NRST_LOW);
@@ -1320,7 +1320,7 @@ int32_t stlink_target_connect(stlink_t *sl, enum connect_type connect) {
     // check NRST connection
     uint32_t dhcsr = 0;
     stlink_read_debug32(sl, STM32_REG_DHCSR, &dhcsr);
-    if ((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
+    if((dhcsr & STM32_REG_DHCSR_S_RESET_ST) == 0) {
       WLOG("NRST is not connected\n");
     }
 
@@ -1328,13 +1328,13 @@ int32_t stlink_target_connect(stlink_t *sl, enum connect_type connect) {
     stlink_soft_reset(sl, 1 /* halt on reset */);
   }
 
-  if (stlink_current_mode(sl) != STLINK_DEV_DEBUG_MODE &&
+  if(stlink_current_mode(sl) != STLINK_DEV_DEBUG_MODE &&
         stlink_enter_swd_mode(sl)) {
     printf("Failed to enter SWD mode\n");
     return -1;
   }
 
-  if (connect == CONNECT_NORMAL) {
+  if(connect == CONNECT_NORMAL) {
     stlink_reset(sl, RESET_AUTO);
   }
 

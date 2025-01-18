@@ -23,7 +23,7 @@ int32_t ugly_init(int32_t maximum_threshold) {
 }
 
 int32_t ugly_log(int32_t level, const char *tag, const char *format, ...) {
-  if (level > max_level) {
+  if(level > max_level) {
     return (0);
   }
 
