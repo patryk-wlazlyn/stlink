@@ -808,12 +808,12 @@ int32_t _stlink_usb_read_reg(stlink_t *sl, int32_t r_idx, struct stlink_reg *reg
     cmd[i++] = STLINK_DEBUG_COMMAND;
 
     if(sl->version.jtag_api == STLINK_JTAG_API_V1) {
-        cmd[i++] = STLINK_DEBUG_APIV1_WRITEREG;
+        cmd[i++] = STLINK_DEBUG_APIV1_READREG;
     } else if(sl->version.jtag_api == STLINK_JTAG_API_V2) {
-        cmd[i++] = STLINK_DEBUG_APIV2_WRITEREG;
+        cmd[i++] = STLINK_DEBUG_APIV2_READREG;
     } else {
         // STLINK_JTAG_API_V3
-        cmd[i++] = STLINK_DEBUG_APIV2_WRITEREG;
+        cmd[i++] = STLINK_DEBUG_APIV2_READREG;
     }
 
     cmd[i++] = (uint8_t) r_idx;
