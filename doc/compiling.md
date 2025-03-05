@@ -92,12 +92,12 @@ Install the following packages from your package repository:
 - `build-essential` (on Debian based distros (Debian, Ubuntu))
 - `cmake`
 - `rpm` (on Debian based distros (Debian, Ubuntu), needed for package build with `make package`)
-- `libusb-1.0`
+- `libusb-1.0-0`
 - `libusb-1.0-0-dev` (development headers for building)
 - `libgtk-3-dev` (_optional_, needed for `stlink-gui`)
 - `pandoc` (_optional_, needed for generating manpages from markdown)
 
-or execute (Debian-based systems only): `apt-get install gcc build-essential cmake libusb-1.0 libusb-1.0-0-dev libgtk-3-dev pandoc`
+or execute (Debian-based systems only): `apt-get install gcc build-essential cmake rpm libusb-1.0-0 libusb-1.0-0-dev libgtk-3-dev pandoc`
 
 (Replace gcc with the intended C-compiler if necessary or leave out any optional package not needed.)
 
