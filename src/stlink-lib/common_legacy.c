@@ -444,6 +444,11 @@ int32_t stlink_enter_swd_mode(stlink_t *sl) {
 int32_t stlink_exit_debug_mode(stlink_t *sl) {
   DLOG("*** stlink_exit_debug_mode ***\n");
 
+  if(stlink_current_mode(sl) != STLINK_DEV_DEBUG_MODE) {
+      // STLINK-V3 locks up completely when calling DEBUG_EXIT in MASS mode
+      return 0;
+  }
+
   if(sl->flash_type != STM32_FLASH_TYPE_UNKNOWN &&
       sl->core_stat != TARGET_RESET) {
     // stop debugging if the target has been identified
