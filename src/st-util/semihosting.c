@@ -191,6 +191,22 @@ int32_t do_semihosting (stlink_t *sl, uint32_t r0, uint32_t r1, uint32_t *ret) {
 
         DLOG("Semihosting: open('%s', (SH open mode)%d, 0644)\n", name, mode);
 
+        if (name_len == 4 && strncmp(":tt", name, 3) == 0) {
+            if (mode <= 3) {
+                *ret = STDIN_FILENO;
+            } else if (mode >= 4 && mode <= 11) {
+                *ret = STDERR_FILENO;
+            } else {
+                DLOG("Semihosting SYS_OPEN error: invalid mode %d for :tt\n", mode);
+                *ret = -1;
+                saved_errno = EINVAL;
+            }
+
+            DLOG("Semihosting: return %d\n", *ret);
+            free(name);
+            break;
+        }
+
         *ret = (uint32_t) open(name, open_mode_flags[mode], 0644);
         saved_errno = errno;
 
